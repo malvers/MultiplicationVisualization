@@ -12,6 +12,7 @@ public class Visualizer extends JButton implements KeyListener {
     private final JTextPane rightInput;
     private String numbersLeft = "9876";
     private String numbersRight = "6789";
+
     private final int numCols = 6;
     private final Dimension presSize = new Dimension(180, 86);
     private final Color myBlueColor = new Color(0, 0, 100);
@@ -36,6 +37,7 @@ public class Visualizer extends JButton implements KeyListener {
     private ArrayList<String> lines = new ArrayList<>();
     private int stepCounter = 0;
     private boolean multiplicationDone = false;
+    private int fontSize80 = 80;
 
     public Visualizer() {
 
@@ -134,6 +136,17 @@ public class Visualizer extends JButton implements KeyListener {
         }
     }
 
+    private String createResultFromLines() {
+
+        for (int i = 0; i < lines.size(); i++) {
+        }
+
+        int left = Integer.parseInt(numbersLeft);
+        int right = Integer.parseInt(numbersRight);
+
+        return "" + left * right;
+    }
+
     private void randomNumbers() {
 
         Random random = new Random();
@@ -160,7 +173,18 @@ public class Visualizer extends JButton implements KeyListener {
         g2d.drawLine(xPos, yPos, rightInput.getX() + rightInput.getWidth(), yPos);
 
         if (multiplicationDone) {
-            int downYpos = (numDigits * 80) + yPos + 20;
+            int downYpos = (numDigits * fontSize80) + yPos + 20;
+            g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
+            g2d.setFont(myFont80);
+            FontMetrics fontMetrics = g.getFontMetrics(g2d.getFont());
+            String resultStr = createResultFromLines();
+            int stringWidth = fontMetrics.stringWidth(resultStr);
+            int localXpos = rightInput.getX() + rightInput.getWidth() - stringWidth;
+            g2d.drawString(resultStr, localXpos, downYpos + fontSize80);
+
+            downYpos += fontSize80 + 16;
+            g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
+            downYpos += 6;
             g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
         }
 
@@ -184,7 +208,7 @@ public class Visualizer extends JButton implements KeyListener {
             width1 += (leftPos) * shift;
         }
         int addRight = rightPos * shift;
-        int arcHeight = 80;
+        int arcHeight = fontSize80;
 //        g2d.drawArc(pos1 - width1 + gap, leftInput.getY() - arcHeight / 2, width1 + addRight, arcHeight, 0, 180);
 
         drawLineResults(g, g2d, yPos, shift);
@@ -203,13 +227,13 @@ public class Visualizer extends JButton implements KeyListener {
                 String line = lines.get(i);
                 int lineLength = fontMetrics.stringWidth(line);
                 g2d.setColor(myColors.get(i));
-                g2d.drawString(line, rightInput.getX() + ((i + 1) * shift) - lineLength, yPos + (i + 1) * 80);
+                g2d.drawString(line, rightInput.getX() + ((i + 1) * shift) - lineLength, yPos + (i + 1) * fontSize80);
             }
         }
 
         int toBeWrittenLength = fontMetrics.stringWidth(toBeWritten);
         g2d.setColor(myColors.get(rightPos));
-        g2d.drawString("" + toBeWritten, rightInput.getX() + ((rightPos + 1) * shift) - toBeWrittenLength, yPos + (rightPos + 1) * 80);
+        g2d.drawString("" + toBeWritten, rightInput.getX() + ((rightPos + 1) * shift) - toBeWrittenLength, yPos + (rightPos + 1) * fontSize80);
     }
 
     private void drawCarryOver(Graphics2D g2d, int yPos, int shift) {
@@ -230,7 +254,9 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void oneStep() {
 
-        if( multiplicationDone ) return;
+        if (multiplicationDone) {
+            return;
+        }
 
         String leftDigits = leftInput.getText();
         String rightDigits = rightInput.getText();
