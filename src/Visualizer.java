@@ -10,8 +10,8 @@ public class Visualizer extends JButton implements KeyListener {
 
     private final JTextPane leftInput;
     private final JTextPane rightInput;
-    private String numbersLeft = "9876";
-    private String numbersRight = "6789";
+    private String numbersLeft = "6168";
+    private String numbersRight = "1476";
 
     private final int numCols = 6;
     private final Dimension presSize = new Dimension(180, 86);
@@ -38,6 +38,7 @@ public class Visualizer extends JButton implements KeyListener {
     private int stepCounter = 0;
     private boolean multiplicationDone = false;
     private int fontSize80 = 80;
+    private int checkLineResult = -1;
 
     public Visualizer() {
 
@@ -271,8 +272,10 @@ public class Visualizer extends JButton implements KeyListener {
 
         String digitToWrite = "" + (sum % 10);
 
-        if (singleResult >= 10) {
+        if (singleResult + carryOver >= 10) {
             carryOver = sum / 10;
+        } else {
+            carryOver = 0;
         }
 
         singleResultStr += " = " + singleResult;
@@ -280,13 +283,13 @@ public class Visualizer extends JButton implements KeyListener {
 
         String s = digitLeft + " * " + digitRight + " = " + singleResult + " sum: " + sum + " write: " + digitToWrite + " carry: " + carryOver;
         s += " | leftPos: " + leftPos + " rightPos: " + rightPos + " step: " + stepCounter;
-        System.out.println(s);
+//        System.out.println(s);
 
         String tmp = toBeWritten;
         toBeWritten = digitToWrite + tmp;
 
-        if (leftPos == numDigits - 1) {
-            System.out.println("add carry left ...");
+        if (leftPos == numDigits - 1 && carryOver > 0) {
+//            System.out.println("add carry left ...");
             tmp = toBeWritten;
             toBeWritten = carryOver + tmp;
         }
@@ -305,6 +308,13 @@ public class Visualizer extends JButton implements KeyListener {
                 rightPos++;
             }
             leftPos = 0;
+
+            int leftNumber = Integer.parseInt(leftDigits);
+            checkLineResult = leftNumber * digitRight;
+            if (Integer.parseInt(toBeWritten) != checkLineResult) {
+                System.out.println("ERROR: " + leftNumber + " * " + digitRight + " = " + checkLineResult + " != " + toBeWritten);
+            }
+
             lines.add(toBeWritten);
             toBeWritten = "";
             carryOver = 0;
