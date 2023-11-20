@@ -10,8 +10,8 @@ public class Visualizer extends JButton implements KeyListener {
 
     private final JTextPane leftInput;
     private final JTextPane rightInput;
-    private String numbersLeft = "2371";
-    private String numbersRight = "7000";
+    private String numbersLeft = "6465";
+    private String numbersRight = "3405";
 
     private final int numCols = 6;
     private final Dimension presSize = new Dimension(180, 86);
@@ -77,7 +77,7 @@ public class Visualizer extends JButton implements KeyListener {
         add(rightInput);
 
         init();
-        oneStep();
+        oneMultiplicationStep();
     }
 
     private void init() {
@@ -139,18 +139,94 @@ public class Visualizer extends JButton implements KeyListener {
 
     private String createResultFromLines() {
 
-        for (int i = 0; i < lines.size(); i++) {
-        }
-
         int left = Integer.parseInt(numbersLeft);
         int right = Integer.parseInt(numbersRight);
 
+        System.out.println( left + " * " + right + " = " + (left*right));
+
         return "" + left * right;
+    }
+
+    private int doAdditionManually() {
+
+        System.out.println("doAdditionManually ...");
+
+        ArrayList<String> linesLocal = new ArrayList<>();
+        int num0right = lines.size() - 1;
+
+        for (int i = 0; i < lines.size(); i++) {
+
+            String theLine = lines.get(i);
+
+            for (int j = 0; j < num0right; j++) {
+                theLine += "0";
+            }
+            num0right--;
+
+            String tmp = theLine;
+            for (int j = 0; j < i; j++) {
+                tmp = "0" + tmp;
+            }
+
+            /// hack
+            while (tmp.length() < 2*numDigits) {
+                System.out.println( "tmp: " + tmp.length() );
+                tmp = "0" + tmp;
+            }
+
+            theLine = tmp;
+
+            linesLocal.add(theLine);
+        }
+
+        System.out.println("Print lines local ...");
+        for (int i = 0; i < linesLocal.size(); i++) {
+            System.out.println(linesLocal.get(i));
+        }
+        System.out.println("Calculate ... ");
+        String result = "";
+        int carryOver = 0;
+        for (int i = linesLocal.get(0).length() - 1; i >= 0; i--) {
+
+            int sum = 0;
+            System.out.print("line: " + i + " -> ");
+            for (int j = 0; j < linesLocal.size(); j++) {
+
+                int digit = Character.getNumericValue(linesLocal.get(j).charAt(i));
+                sum += digit;
+                System.out.print(digit);
+            }
+
+            int toWrite;
+            if (sum + carryOver >= 10) {
+                sum += carryOver;
+                toWrite = sum % 10;
+                carryOver = sum / 10;
+            } else {
+//                carryOver = 0;
+                toWrite = sum + carryOver;
+            }
+            System.out.print(" sum: " + sum + " write " + toWrite + " cary: " + carryOver);
+            result += "" + toWrite;
+            System.out.println();
+        }
+
+        System.out.println("");
+
+        StringBuilder reversedStringBuilder = new StringBuilder(result).reverse();
+        result = reversedStringBuilder.toString();
+
+        int intResult = Integer.parseInt(result);
+        System.out.println("int result: " + intResult);
+
+        System.out.println("doAdditionManually done ...");
+        return intResult;
     }
 
     private void randomNumbers() {
 
         init();
+
         Random random = new Random();
         numbersLeft = "" + random.nextInt(9000) + 1000;
         numbersRight = "" + random.nextInt(9000) + 1000;
@@ -254,7 +330,7 @@ public class Visualizer extends JButton implements KeyListener {
         }
     }
 
-    private void oneStep() {
+    private void oneMultiplicationStep() {
 
         if (multiplicationDone) {
             return;
@@ -296,6 +372,7 @@ public class Visualizer extends JButton implements KeyListener {
         }
 
         if (++stepCounter >= numDigits * numDigits) {
+            lines.add(toBeWritten);
             multiplicationDone = true;
             carryOver = 0;
             singleResultStr = "";
@@ -334,7 +411,7 @@ public class Visualizer extends JButton implements KeyListener {
             case KeyEvent.VK_SPACE:
                 randomNumbers();
                 init();
-                oneStep();
+                oneMultiplicationStep();
                 break;
             case KeyEvent.VK_ENTER:
 
@@ -357,36 +434,63 @@ public class Visualizer extends JButton implements KeyListener {
                 }
                 break;
             case KeyEvent.VK_LEFT:
-                oneStep();
+                oneMultiplicationStep();
                 break;
             case KeyEvent.VK_RIGHT:
-                oneStep();
+                oneMultiplicationStep();
                 break;
             case KeyEvent.VK_ESCAPE:
                 System.exit(0);
                 break;
             case KeyEvent.VK_I:
                 init();
-                oneStep();
+                oneMultiplicationStep();
+                break;
+            case KeyEvent.VK_D:
+                init();
+                for (int j = 0; j < numDigits * numDigits; j++) {
+                    oneMultiplicationStep();
+                }
+                int r1 = doAdditionManually();
+                int r2 = Integer.parseInt(createResultFromLines());
+                if (r1 != r2) {
+                    System.out.println("ERROR ADDITION: " + r1 + " != " + r2);
+                }
+
                 break;
             case KeyEvent.VK_P:
+                for (int j = 0; j < numDigits * numDigits; j++) {
+                    oneMultiplicationStep();
+                }
                 for (int i = 0; i < lines.size(); i++) {
                     System.out.println("line " + i + ": " + lines.get(i));
                 }
                 break;
+
             case KeyEvent.VK_T:
-                for (int i = 0; i <= 100000; i++) {
-                    if (i % 10000 == 0) {
-                        System.out.println("i: " + i);
-                    }
-                    randomNumbers();
-                    for (int j = 0; j < numDigits * numDigits; j++) {
-                        oneStep();
-                    }
-                }
+                runTesting();
                 break;
         }
         repaint();
+    }
+
+    private void runTesting() {
+
+        for (int i = 0; i <= 1000; i++) {
+            if (i % 100 == 0) {
+                System.out.println("i: " + i);
+            }
+            randomNumbers();
+            for (int j = 0; j < numDigits * numDigits; j++) {
+                oneMultiplicationStep();
+            }
+            int r1 = doAdditionManually();
+            int r2 = Integer.parseInt(createResultFromLines());
+
+            if (r1 != r2) {
+                System.out.println("ERROR ADDITION: " + r1 + " != " + r2);
+            }
+        }
     }
 
     @Override
