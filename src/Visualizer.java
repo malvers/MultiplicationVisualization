@@ -10,8 +10,8 @@ public class Visualizer extends JButton implements KeyListener {
 
     private final JTextPane leftInput;
     private final JTextPane rightInput;
-    private String numbersLeft = "6168";
-    private String numbersRight = "1476";
+    private String numbersLeft = "2371";
+    private String numbersRight = "7000";
 
     private final int numCols = 6;
     private final Dimension presSize = new Dimension(180, 86);
@@ -150,6 +150,7 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void randomNumbers() {
 
+        init();
         Random random = new Random();
         numbersLeft = "" + random.nextInt(9000) + 1000;
         numbersRight = "" + random.nextInt(9000) + 1000;
@@ -371,6 +372,17 @@ public class Visualizer extends JButton implements KeyListener {
             case KeyEvent.VK_P:
                 for (int i = 0; i < lines.size(); i++) {
                     System.out.println("line " + i + ": " + lines.get(i));
+                }
+                break;
+            case KeyEvent.VK_T:
+                for (int i = 0; i <= 100000; i++) {
+                    if (i % 10000 == 0) {
+                        System.out.println("i: " + i);
+                    }
+                    randomNumbers();
+                    for (int j = 0; j < numDigits * numDigits; j++) {
+                        oneStep();
+                    }
                 }
                 break;
         }
