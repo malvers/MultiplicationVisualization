@@ -1,5 +1,3 @@
-import com.sun.deploy.net.MessageHeader;
-
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
@@ -36,6 +34,8 @@ public class Visualizer extends JButton implements KeyListener {
 
     private ArrayList<Color> myColors = new ArrayList();
     private ArrayList<String> lines = new ArrayList<>();
+    private int stepCounter = 0;
+    private boolean multiplicationDone = false;
 
     public Visualizer() {
 
@@ -68,7 +68,7 @@ public class Visualizer extends JButton implements KeyListener {
 
         setNumbers(false);
 
-        add(Box.createVerticalStrut(440));
+        add(Box.createVerticalStrut(240));
         add(leftInput);
         add(Box.createHorizontalStrut(100));
         add(rightInput);
@@ -84,6 +84,8 @@ public class Visualizer extends JButton implements KeyListener {
         singleResultStr = "";
         carryOver = 0;
         lines.clear();
+        stepCounter = 0;
+        multiplicationDone = false;
     }
 
     private void setNumbers(boolean left) {
@@ -156,6 +158,12 @@ public class Visualizer extends JButton implements KeyListener {
         int xPos = leftInput.getX();
 
         g2d.drawLine(xPos, yPos, rightInput.getX() + rightInput.getWidth(), yPos);
+
+        if (multiplicationDone) {
+            int downYpos = (numDigits * 80) + yPos + 20;
+            g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
+        }
+
         g2d.fillOval(getWidth() / 2, (int) (yPos - leftInput.getPreferredSize().height / 1.5), 10, 10);
 
         int pos1 = rightInput.getX();
@@ -163,17 +171,21 @@ public class Visualizer extends JButton implements KeyListener {
         int gap = 26;
         int shift = 45;
 
-        g2d.setFont(new Font("Arial", Font.PLAIN, 36));
+        g2d.setFont(new Font("Arial", Font.PLAIN, 26));
         FontMetrics fontMetrics = g.getFontMetrics(g2d.getFont());
         int stringWidth = fontMetrics.stringWidth(singleResultStr);
 
         g2d.setColor(Color.GRAY);
-        g2d.drawString(singleResultStr, getWidth() / 2 - stringWidth / 2, 100);
+        g2d.drawString(singleResultStr, getWidth() / 2 - stringWidth / 2, leftInput.getY() - 20);
 
-        width1 += (leftPos) * shift;
+        if (rightPos == 0) {
+            width1 += (leftPos - 1) * shift;
+        } else {
+            width1 += (leftPos) * shift;
+        }
         int addRight = rightPos * shift;
         int arcHeight = 80;
-        g2d.drawArc(pos1 - width1 + gap, leftInput.getY() - arcHeight / 2, width1 + addRight, arcHeight, 0, 180);
+//        g2d.drawArc(pos1 - width1 + gap, leftInput.getY() - arcHeight / 2, width1 + addRight, arcHeight, 0, 180);
 
         drawLineResults(g, g2d, yPos, shift);
 
@@ -202,15 +214,23 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void drawCarryOver(Graphics2D g2d, int yPos, int shift) {
 
-        if (carryOver > 0 && leftPos < numDigits - 1) {
+        if (carryOver > 0  /*&&leftPos < numDigits - 1*/) {
             g2d.setColor(Color.RED);
             g2d.setFont(mySmallFont);
-            int carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos + 1) * shift - 8;
+            int carryPos;
+
+            if (rightPos == 0) {
+                carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos) * shift - 8;
+            } else {
+                carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos) * shift - 8;
+            }
             g2d.drawString("" + carryOver, carryPos, yPos - 4);
         }
     }
 
     private void oneStep() {
+
+        if( multiplicationDone ) return;
 
         String leftDigits = leftInput.getText();
         String rightDigits = rightInput.getText();
@@ -229,40 +249,40 @@ public class Visualizer extends JButton implements KeyListener {
             carryOver = sum / 10;
         }
 
-//        System.out.println(digitLeft + " * " + digitRight + " = " + singleResult + " sum: " + sum + " write: " + digitToWrite + " carry: " + carryOver);
+        singleResultStr += " = " + singleResult;
+        singleResultStr += " + " + carryOver + " = " + (singleResult + carryOver); //+ " write " + digitToWrite + " carry " + carryOver;
+
+        String s = digitLeft + " * " + digitRight + " = " + singleResult + " sum: " + sum + " write: " + digitToWrite + " carry: " + carryOver;
+        s += " | leftPos: " + leftPos + " rightPos: " + rightPos + " step: " + stepCounter;
+        System.out.println(s);
 
         String tmp = toBeWritten;
         toBeWritten = digitToWrite + tmp;
 
         if (leftPos == numDigits - 1) {
+            System.out.println("add carry left ...");
             tmp = toBeWritten;
             toBeWritten = carryOver + tmp;
         }
 
-        if (showResult) {
-            showSingleTaskResult(digitToWrite);
+        if (++stepCounter >= numDigits * numDigits) {
+            multiplicationDone = true;
+            carryOver = 0;
+            singleResultStr = "";
+            return;
         }
 
         leftPos++;
 
         if (leftPos > numDigits - 1) {
-//            if (rightPos < numDigits-1) {
+            if (rightPos < numDigits - 1) {
                 rightPos++;
-//            }
+            }
             leftPos = 0;
             lines.add(toBeWritten);
             toBeWritten = "";
+            carryOver = 0;
         }
-        System.out.println("leftPos: " + leftPos + " rightPos: " + rightPos);
-    }
-
-    private void showSingleTaskResult(String digitToWrite) {
-
-        singleResultStr += " = " + singleResult;
-
-//        if (carryOver > 0) {
-//            singleResultStr += " ... write " + digitToWrite + " carry " + carryOver;
-//        }
     }
 
     @Override
