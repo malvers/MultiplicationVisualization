@@ -166,18 +166,18 @@ public class Visualizer extends JButton implements KeyListener {
             }
             num0right--;
 
-            String tmp = theLine.toString();
+            StringBuilder tmp = new StringBuilder(theLine.toString());
             for (int j = 0; j < i; j++) {
-                tmp = "0" + tmp;
+                tmp.insert(0, "0");
             }
 
             /// hack
             while (tmp.length() < 2 * numDigits) {
 //                System.out.println("tmp: " + tmp.length());
-                tmp = "0" + tmp;
+                tmp.insert(0, "0");
             }
 
-            theLine = new StringBuilder(tmp);
+            theLine = new StringBuilder(tmp.toString());
 
             linesLocal.add(theLine.toString());
         }
@@ -188,15 +188,15 @@ public class Visualizer extends JButton implements KeyListener {
 //        }
 //        System.out.println("Calculate ... ");
 
-        String result = "";
+        StringBuilder result = new StringBuilder();
         int carryOver = 0;
         for (int i = linesLocal.get(0).length() - 1; i >= 0; i--) {
 
             int sum = 0;
 //            System.out.print("line: " + i + " -> ");
-            for (int j = 0; j < linesLocal.size(); j++) {
+            for (String s : linesLocal) {
 
-                int digit = Character.getNumericValue(linesLocal.get(j).charAt(i));
+                int digit = Character.getNumericValue(s.charAt(i));
                 sum += digit;
 //                System.out.print(digit);
             }
@@ -211,20 +211,21 @@ public class Visualizer extends JButton implements KeyListener {
                 toWrite = sum + carryOver;
             }
 //            System.out.print(" sum: " + sum + " write " + toWrite + " cary: " + carryOver);
-            result += "" + toWrite;
+            result.append(toWrite);
 //            System.out.println();
         }
 
 //        System.out.println("");
 
-        StringBuilder reversedStringBuilder = new StringBuilder(result).reverse();
-        result = reversedStringBuilder.toString();
+        StringBuilder reversedStringBuilder = new StringBuilder(result.toString()).reverse();
+        result = new StringBuilder(reversedStringBuilder.toString());
 
-        int intResult = Integer.parseInt(result);
+//        int intResult = Integer.parseInt(result.toString());
+
 //        System.out.println("int result: " + intResult);
-
 //        System.out.println("doAdditionManually done ...");
-        return intResult;
+
+        return Integer.parseInt(result.toString());
     }
 
     private void randomNumbers() {
@@ -581,6 +582,7 @@ public class Visualizer extends JButton implements KeyListener {
                 init();
                 break;
             case KeyEvent.VK_D:
+                System.out.println("D");
                 break;
             case KeyEvent.VK_P:
                 for (int j = 0; j < numDigits * numDigits; j++) {
