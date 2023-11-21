@@ -280,12 +280,17 @@ public class Visualizer extends JButton implements KeyListener {
             str += " + " + carryOver + " = " + (result + carryOver);
         }
 
-        System.out.println("carry: " + carryOver + " newCarry: " + newCarryOver);
+//        System.out.println(leftPos + " carry: " + carryOver + " newCarry: " + newCarryOver);
 
-        str += " ➙ write " + write;
-        if (newCarryOver > 0) {
-            str += " carry " + newCarryOver;
+        if (leftPos >= numDigits - 1 && newCarryOver > 0) {
+            str += " ➙ write " + newCarryOver + write;
+        } else {
+            str += " ➙ write " + write;
+            if (newCarryOver > 0) {
+                str += " carry " + newCarryOver;
+            }
         }
+
 
         int stringWidth = fontMetrics.stringWidth(str);
 
@@ -313,33 +318,26 @@ public class Visualizer extends JButton implements KeyListener {
         int pos = str.indexOf("write") + 6;
         draw = str.substring(3, pos);
 
-        System.out.println("draw: " + draw);
-
         int plusSign = draw.indexOf("+");
         if (plusSign >= 0) {
 
             String mstr = draw.substring(0, plusSign + 2);
-            System.out.println("mstr|" + mstr + "|");
 
             g2d.setColor(myGrayColor);
             g2d.drawString(mstr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(mstr);
 
             mstr = draw.substring(plusSign + 2, plusSign + 3);
-            System.out.println("mstr|" + mstr + "|");
 
             g2d.setColor(Color.RED);
             g2d.drawString(mstr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(mstr + "|");
 
             mstr = draw.substring(plusSign + 4, plusSign + 17);
-            System.out.println("mstr|" + mstr + "|");
 
             g2d.setColor(myGrayColor);
             g2d.drawString(mstr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(mstr);
-
-            System.out.println("mstr|" + mstr + "|");
 
         } else {
 
