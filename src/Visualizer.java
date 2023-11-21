@@ -309,12 +309,44 @@ public class Visualizer extends JButton implements KeyListener {
         g2d.drawString(draw, leftXStart + shift, yTaskPos);
         shift += fontMetrics.stringWidth(draw);
 
-        /// paint the in gray up to the number to be written
+        /// paint in gray up to the number to be written
         int pos = str.indexOf("write") + 6;
         draw = str.substring(3, pos);
-        g2d.setColor(myGrayColor);
-        g2d.drawString(draw, leftXStart + shift, yTaskPos);
-        shift += fontMetrics.stringWidth(draw);
+
+        System.out.println("draw: " + draw);
+
+        int plusSign = draw.indexOf("+");
+        if (plusSign >= 0) {
+
+            String mstr = draw.substring(0, plusSign + 2);
+            System.out.println("mstr|" + mstr + "|");
+
+            g2d.setColor(myGrayColor);
+            g2d.drawString(mstr, leftXStart + shift, yTaskPos);
+            shift += fontMetrics.stringWidth(mstr);
+
+            mstr = draw.substring(plusSign + 2, plusSign + 3);
+            System.out.println("mstr|" + mstr + "|");
+
+            g2d.setColor(Color.RED);
+            g2d.drawString(mstr, leftXStart + shift, yTaskPos);
+            shift += fontMetrics.stringWidth(mstr + "|");
+
+            mstr = draw.substring(plusSign + 4, plusSign + 17);
+            System.out.println("mstr|" + mstr + "|");
+
+            g2d.setColor(myGrayColor);
+            g2d.drawString(mstr, leftXStart + shift, yTaskPos);
+            shift += fontMetrics.stringWidth(mstr);
+
+            System.out.println("mstr|" + mstr + "|");
+
+        } else {
+
+            g2d.setColor(myGrayColor);
+            g2d.drawString(draw, leftXStart + shift, yTaskPos);
+            shift += fontMetrics.stringWidth(draw);
+        }
 
         /// paint the number to be written in its color
         if (!str.contains("carry")) {
@@ -328,12 +360,12 @@ public class Visualizer extends JButton implements KeyListener {
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(draw);
 
-            draw = str.substring(str.indexOf("carry"), str.indexOf("carry") + 6);
+            draw = str.substring(str.indexOf("carry"), str.indexOf("carry") + 5);
             g2d.setColor(myGrayColor);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(draw);
 
-            draw = str.substring(str.indexOf("carry") + 6);
+            draw = str.substring(str.indexOf("carry") + 5);
             g2d.setColor(Color.RED);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
         }
