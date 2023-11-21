@@ -12,33 +12,23 @@ public class Visualizer extends JButton implements KeyListener {
     private final JTextPane rightInput;
     private String numbersLeft = "6465";
     private String numbersRight = "3405";
-
-    private final int numCols = 6;
-    private final Dimension presSize = new Dimension(180, 86);
     private final Color myBlueColor = new Color(0, 0, 100);
     private final Font myFont80 = new Font("Arial", Font.PLAIN, 80);
     private final Font mySmallFont = new Font("Arial", Font.PLAIN, 24);
-    private int g = 255;
-    private final Color myGray = new Color(g, g, g);
     private int leftPos = 0;
     private int rightPos = 0;
-    private boolean showResult = true;
-    private int numDigits = 4;
+    private final int numDigits = 4;
     private String toBeWritten = "";
-    private int singleResult = -1;
-    private String singleResultStr = "";
+    private String actualTaskStr = "";
     private int carryOver = 0;
-    private Color myRedColor = new Color(180, 0, 0);
-    private Color myOrangeColor = new Color(255, 190, 0);
-    private Color myGreenColor = new Color(140, 180, 42);
-    private Color myCyanColor = new Color(0, 150, 200);
+    private final int g = 255;
+    private final Color myGrayColor = new Color(200, 200, 200);
 
     private ArrayList<Color> myColors = new ArrayList();
-    private ArrayList<String> lines = new ArrayList<>();
+    private final ArrayList<String> lines = new ArrayList<>();
     private int stepCounter = 0;
     private boolean multiplicationDone = false;
-    private int fontSize80 = 80;
-    private int checkLineResult = -1;
+    private final int fontSize80 = 80;
 
     public Visualizer() {
 
@@ -47,16 +37,22 @@ public class Visualizer extends JButton implements KeyListener {
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder());
 
+        Color myGreenColor = new Color(140, 180, 42);
         myColors.add(myGreenColor);
+        Color myOrangeColor = new Color(255, 190, 0);
         myColors.add(myOrangeColor);
+        Color myCyanColor = new Color(0, 150, 200);
         myColors.add(myCyanColor);
+        Color myRedColor = new Color(180, 0, 0);
         myColors.add(myRedColor);
 
         setLayout(new FlowLayout(FlowLayout.CENTER));
         leftInput = new JTextPane();
         leftInput.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+        Dimension presSize = new Dimension(180, 86);
         leftInput.setPreferredSize(presSize);
-        leftInput.setBackground(myGray);
+        Color myLightGrayColor = new Color(g, g, g);
+        leftInput.setBackground(myLightGrayColor);
         leftInput.addKeyListener(this);
         leftInput.setFont(myFont80);
 
@@ -65,7 +61,7 @@ public class Visualizer extends JButton implements KeyListener {
         rightInput = new JTextPane();
         rightInput.addKeyListener(this);
         rightInput.setPreferredSize(presSize);
-        rightInput.setBackground(myGray);
+        rightInput.setBackground(myLightGrayColor);
         rightInput.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         rightInput.setFont(myFont80);
 
@@ -81,10 +77,11 @@ public class Visualizer extends JButton implements KeyListener {
     }
 
     private void init() {
+
         leftPos = 0;
         rightPos = 0;
         toBeWritten = "";
-        singleResultStr = "";
+        actualTaskStr = "";
         carryOver = 0;
         lines.clear();
         stepCounter = 0;
@@ -142,7 +139,7 @@ public class Visualizer extends JButton implements KeyListener {
         int left = Integer.parseInt(numbersLeft);
         int right = Integer.parseInt(numbersRight);
 
-        System.out.println( left + " * " + right + " = " + (left*right));
+        System.out.println(left + " * " + right + " = " + (left * right));
 
         return "" + left * right;
     }
@@ -169,8 +166,8 @@ public class Visualizer extends JButton implements KeyListener {
             }
 
             /// hack
-            while (tmp.length() < 2*numDigits) {
-                System.out.println( "tmp: " + tmp.length() );
+            while (tmp.length() < 2 * numDigits) {
+                System.out.println("tmp: " + tmp.length());
                 tmp = "0" + tmp;
             }
 
@@ -251,54 +248,64 @@ public class Visualizer extends JButton implements KeyListener {
         g2d.drawLine(xPos, yPos, rightInput.getX() + rightInput.getWidth(), yPos);
 
         if (multiplicationDone) {
-            int downYpos = (numDigits * fontSize80) + yPos + 20;
-            g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
-            g2d.setFont(myFont80);
-            FontMetrics fontMetrics = g.getFontMetrics(g2d.getFont());
-            String resultStr = createResultFromLines();
-            int stringWidth = fontMetrics.stringWidth(resultStr);
-            int localXpos = rightInput.getX() + rightInput.getWidth() - stringWidth;
-            g2d.drawString(resultStr, localXpos, downYpos + fontSize80);
-
-            downYpos += fontSize80 + 16;
-            g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
-            downYpos += 6;
-            g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
+            drawAfterMultiplication(g2d, yPos, xPos);
         }
 
         g2d.fillOval(getWidth() / 2, (int) (yPos - leftInput.getPreferredSize().height / 1.5), 10, 10);
 
-        int pos1 = rightInput.getX();
-        int width1 = 157;
-        int gap = 26;
-        int shift = 45;
-
         g2d.setFont(new Font("Arial", Font.PLAIN, 26));
         FontMetrics fontMetrics = g.getFontMetrics(g2d.getFont());
-        int stringWidth = fontMetrics.stringWidth(singleResultStr);
+        int stringWidth = fontMetrics.stringWidth(actualTaskStr);
 
-        g2d.setColor(Color.GRAY);
-        g2d.drawString(singleResultStr, getWidth() / 2 - stringWidth / 2, leftInput.getY() - 20);
+        g2d.setColor(myGrayColor);
+        g2d.drawString(actualTaskStr, getWidth() / 2 - stringWidth / 2, leftInput.getY() - 20);
 
-        if (rightPos == 0) {
-            width1 += (leftPos - 1) * shift;
-        } else {
-            width1 += (leftPos) * shift;
-        }
-        int addRight = rightPos * shift;
-        int arcHeight = fontSize80;
-//        g2d.drawArc(pos1 - width1 + gap, leftInput.getY() - arcHeight / 2, width1 + addRight, arcHeight, 0, 180);
+        int shift = 45;
+
+        drawArc(g2d, shift);
 
         drawLineResults(g, g2d, yPos, shift);
 
         drawCarryOver(g2d, yPos, shift);
     }
 
+    private void drawArc(Graphics2D g2d, int shift) {
+
+        int posX = rightInput.getX();
+        int width = 157;
+        int gap = 26;
+
+        if (rightPos == 0) {
+            width += (leftPos - 1) * shift;
+        } else {
+            width += (leftPos) * shift;
+        }
+        int addRight = rightPos * shift;
+        int arcHeight = (int) (fontSize80 / 1.5);
+        g2d.drawArc(posX - width + gap, leftInput.getY() - arcHeight / 4, width + addRight, arcHeight, 0, 180);
+    }
+
+    private void drawAfterMultiplication(Graphics2D g2d, int yPos, int xPos) {
+
+        int downYpos = (numDigits * fontSize80) + yPos + 20;
+        g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
+        g2d.setFont(myFont80);
+        FontMetrics fontMetrics = g2d.getFontMetrics(g2d.getFont());
+        String resultStr = createResultFromLines();
+        int stringWidth = fontMetrics.stringWidth(resultStr);
+        int localXpos = rightInput.getX() + rightInput.getWidth() - stringWidth;
+        g2d.drawString(resultStr, localXpos, downYpos + fontSize80);
+
+        downYpos += fontSize80 + 16;
+        g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
+        downYpos += 6;
+        g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
+    }
+
     private void drawLineResults(Graphics g, Graphics2D g2d, int yPos, int shift) {
 
-        FontMetrics fontMetrics;
         g2d.setFont(myFont80);
-        fontMetrics = g.getFontMetrics(g2d.getFont());
+        FontMetrics fontMetrics = g2d.getFontMetrics(myFont80);
         if (rightPos > 0) {
 
             for (int i = 0; i < lines.size(); i++) {
@@ -342,8 +349,8 @@ public class Visualizer extends JButton implements KeyListener {
         int digitLeft = leftDigits.charAt(3 - leftPos) - '0';
         int digitRight = rightDigits.charAt(rightPos) - '0';
 
-        singleResult = digitLeft * digitRight;
-        singleResultStr = "" + digitLeft + "・" + digitRight;
+        int singleResult = digitLeft * digitRight;
+        actualTaskStr = "" + digitLeft + "・" + digitRight;
 
         int sum = singleResult + carryOver;
 
@@ -355,11 +362,11 @@ public class Visualizer extends JButton implements KeyListener {
             carryOver = 0;
         }
 
-        singleResultStr += " = " + singleResult;
-        singleResultStr += " + " + carryOver + " = " + (singleResult + carryOver); //+ " write " + digitToWrite + " carry " + carryOver;
+        actualTaskStr += " = " + singleResult;
+//        singleResultStr += " + " + carryOver + " = " + (singleResult + carryOver);
 
-        String s = digitLeft + " * " + digitRight + " = " + singleResult + " sum: " + sum + " write: " + digitToWrite + " carry: " + carryOver;
-        s += " | leftPos: " + leftPos + " rightPos: " + rightPos + " step: " + stepCounter;
+//        String s = digitLeft + " * " + digitRight + " = " + singleResult + " sum: " + sum + " write: " + digitToWrite + " carry: " + carryOver;
+//        s += " | leftPos: " + leftPos + " rightPos: " + rightPos + " step: " + stepCounter;
 //        System.out.println(s);
 
         String tmp = toBeWritten;
@@ -375,7 +382,7 @@ public class Visualizer extends JButton implements KeyListener {
             lines.add(toBeWritten);
             multiplicationDone = true;
             carryOver = 0;
-            singleResultStr = "";
+            actualTaskStr = "";
             return;
         }
 
@@ -388,7 +395,7 @@ public class Visualizer extends JButton implements KeyListener {
             leftPos = 0;
 
             int leftNumber = Integer.parseInt(leftDigits);
-            checkLineResult = leftNumber * digitRight;
+            int checkLineResult = leftNumber * digitRight;
             if (Integer.parseInt(toBeWritten) != checkLineResult) {
                 System.out.println("ERROR: " + leftNumber + " * " + digitRight + " = " + checkLineResult + " != " + toBeWritten);
             }
