@@ -21,7 +21,7 @@ public class Visualizer extends JButton implements KeyListener {
     private int carryOver = 0;
     private final int g = 100;
     private final Color myGrayColor = new Color(g, g, g);
-    private final LeftPos leftPos = new LeftPos();
+    private int leftPos = 0;
     private final ArrayList<Color> myColors = new ArrayList();
     private final ArrayList<String> lines = new ArrayList<>();
     private int stepCounter = 0;
@@ -76,7 +76,7 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void init() {
 
-        leftPos.set(0);
+        leftPos = 0;
         rightPos = 0;
         toBeWritten = "";
         carryOver = 0;
@@ -267,7 +267,7 @@ public class Visualizer extends JButton implements KeyListener {
         String leftDigits = leftInput.getText();
         String rightDigits = rightInput.getText();
 
-        int digitLeft = leftDigits.charAt(3 - leftPos.get()) - '0';
+        int digitLeft = leftDigits.charAt(3 - leftPos) - '0';
         int digitRight = rightDigits.charAt(rightPos) - '0';
 
         int result = digitLeft * digitRight;
@@ -341,7 +341,7 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void drawArcAndTask(Graphics2D g2d) {
 
-        if (multiplicationDone || (leftPos.get() == 0 && rightPos == 0)) {
+        if (multiplicationDone || (leftPos == 0 && rightPos == 0)) {
             return;
         }
 
@@ -353,7 +353,7 @@ public class Visualizer extends JButton implements KeyListener {
         int increment = leftInput.getWidth() / numDigits;
         int halfLetter = increment / 2;
 
-        int xPosLeft = rightInput.getX() + halfLetter - (gapBetweenInputs + increment) - (increment * leftPos.get());
+        int xPosLeft = rightInput.getX() + halfLetter - (gapBetweenInputs + increment) - (increment * leftPos);
 
         int xPosRight = rightInput.getX() + halfLetter + (increment * rightPos);
 
@@ -380,7 +380,7 @@ public class Visualizer extends JButton implements KeyListener {
         String leftDigits = leftInput.getText();
         String rightDigits = rightInput.getText();
 
-        int digitLeft = leftDigits.charAt(3 - leftPos.get()) - '0';
+        int digitLeft = leftDigits.charAt(3 - leftPos) - '0';
         int digitRight = rightDigits.charAt(rightPos) - '0';
 
         int singleResult = digitLeft * digitRight;
@@ -398,7 +398,7 @@ public class Visualizer extends JButton implements KeyListener {
         String tmp = toBeWritten;
         toBeWritten = digitToWrite + tmp;
 
-        if (leftPos.get() == numDigits - 1 && carryOver > 0) {
+        if (leftPos == numDigits - 1 && carryOver > 0) {
             toBeWritten = carryOver + toBeWritten;
         }
 
@@ -410,14 +410,14 @@ public class Visualizer extends JButton implements KeyListener {
             return;
         }
 
-        leftPos.inc();
+        leftPos++;
 
-        if (leftPos.get() >= numDigits) {
+        if (leftPos >= numDigits) {
 
             if (rightPos < numDigits) {
                 rightPos++;
             }
-            leftPos.set(0);
+            leftPos = 0;
 
             checkResult(leftDigits, digitRight);
 
@@ -469,7 +469,7 @@ public class Visualizer extends JButton implements KeyListener {
             g2d.setColor(Color.RED);
             g2d.setFont(mySmallFont);
             int carryPos;
-            carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos.get()) * shift - 8;
+            carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos) * shift - 8;
             g2d.drawString("" + carryOver, carryPos, yPos - 4);
         }
     }
@@ -529,8 +529,6 @@ public class Visualizer extends JButton implements KeyListener {
                 init();
                 break;
             case KeyEvent.VK_D:
-                leftPos.set(0);
-                carryOver = 0;
                 break;
             case KeyEvent.VK_P:
                 for (int j = 0; j < numDigits * numDigits; j++) {
