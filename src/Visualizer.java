@@ -9,140 +9,33 @@ import java.util.Random;
 
 public class Visualizer extends JButton implements KeyListener {
 
-    class AnimationObject {
-
-        private double incX;
-        private double incY;
-        private Timer timer = new Timer(10, e -> {
-            anime.onStep();
-            repaint();
-        });
-        private final int stepsToRun;
-        private Point2D from;
-        private final Point2D runningPoint = new Point2D.Double(0, 0);
-        private Point2D to;
-        private int animeCounter = 0;
-        private String toWrite = "not set yet";
-        private boolean hasFromPosition;
-        private boolean hasToPosition;
-
-        public AnimationObject(int steps) {
-
-            from = new Point2D.Double();
-            runningPoint.setLocation(from);
-            to = new Point2D.Double();
-            stepsToRun = steps;
-            hasFromPosition = false;
-            hasToPosition = false;
-            initTimer();
-        }
-
-        public void setHasPositions(boolean fromPos, boolean toPos) {
-
-            hasFromPosition = fromPos;
-            hasToPosition = toPos;
-        }
-
-        private void initTimer() {
-            timer = new Timer(10, e -> {
-                anime.onStep();
-                repaint();
-            });
-        }
-
-        public void start() {
-            drawCarryOver = true;
-            timer.start();
-        }
-
-        private void calculateIncrements() {
-
-            double dx = to.getX() - from.getX();
-            double dy = to.getY() - from.getY();
-            incX = dx / stepsToRun;
-            incY = dy / stepsToRun;
-        }
-
-        public boolean hasPositions() {
-            return hasFromPosition && hasToPosition;
-        }
-
-        public void setValue(int writeValue) {
-            toWrite = "" + writeValue;
-        }
-
-        private void onStep() {
-
-            animeCounter++;
-            if (animeCounter >= stepsToRun) {
-                drawCarryOver = false;
-                timer.stop();
-            }
-            runningPoint.setLocation(runningPoint.getX() + incX, runningPoint.getY() + incY);
-        }
-
-        public void paint(Graphics2D g2d) {
-
-            if (!hasToPosition || !hasFromPosition) {
-                return;
-            }
-
-            g2d.setColor(myColors.get(rightPos));
-            g2d.setFont(taskFont);
-
-            int startSize = taskFont.getSize();
-            int endSize = multiplicationLineFont.getSize();
-            double delta = (double) (endSize - startSize) / (double) stepsToRun;
-
-            int newFontSize = (int) (startSize + delta * animeCounter);
-
-            g2d.setFont(new Font("Arial", Font.PLAIN, newFontSize));
-            int xShift = g2d.getFontMetrics().stringWidth(toWrite);
-
-            double deltaShift = xShift / (double) stepsToRun;
-            double actualShift = deltaShift * animeCounter;
-
-            g2d.drawString(toWrite, (int) ((int) runningPoint.getX() - actualShift), (int) runningPoint.getY());
-        }
-
-        public void setFromPosition(int xFrom, int yFrom) {
-
-            from = new Point2D.Double(xFrom, yFrom);
-            runningPoint.setLocation(from);
-            hasFromPosition = true;
-
-            animeCounter = 0;
-
-            calculateIncrements();
-        }
-
-        public void setToPosition(int xTo, int yTo) {
-
-            to = new Point2D.Double(xTo, yTo);
-            hasToPosition = true;
-
-            calculateIncrements();
-        }
-    }
-
     private AnimationObject anime;
     private final JTextPane leftInput;
     private final JTextPane rightInput;
     private String numbersLeft = "9876";
     private String numbersRight = "9876";
     private final Color myBlueColor = new Color(0, 0, 100);
-    private final Font multiplicationLineFont = new Font("Arial", Font.PLAIN, 80);
+    protected final Font multiplicationLineFont = new Font("Arial", Font.PLAIN, 80);
     private final Font carryOverFont = new Font("Arial", Font.PLAIN, 24);
-    private final Font taskFont = new Font("Arial", Font.PLAIN, 26);
+    protected final Font taskFont = new Font("Arial", Font.PLAIN, 26);
     private int leftPos = 0;
-    private int rightPos = 0;
+    protected int rightPos = 0;
     private final int numDigits = 4;
     private String toBeWritten = "";
-    private boolean drawCarryOver = true;
+
+    public boolean isDrawCarryOver() {
+        return drawCarryOver;
+    }
+
+    public void setDrawCarryOver(boolean drawCarryOver) {
+        this.drawCarryOver = drawCarryOver;
+    }
+
+    protected boolean drawCarryOver = true;
     private int carryOver = 0;
     private final int g = 100;
     private final Color myGrayColor = new Color(g, g, g);
-    private final ArrayList<Color> myColors = new ArrayList();
+    protected final ArrayList<Color> myColors = new ArrayList();
     private final ArrayList<String> lines = new ArrayList<>();
     private int stepCounter = 0;
     private boolean multiplicationDone = false;
@@ -156,7 +49,7 @@ public class Visualizer extends JButton implements KeyListener {
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder());
 
-        anime = new AnimationObject(40);
+        anime = new AnimationObject(40, this);
 
         Color myGreenColor = new Color(140, 180, 42);
         myColors.add(myGreenColor);
@@ -197,9 +90,11 @@ public class Visualizer extends JButton implements KeyListener {
         init();
     }
 
+
+
     private void init() {
 
-        anime = new AnimationObject(40);
+        anime = new AnimationObject(40, this);
         leftPos = 0;
         rightPos = 0;
         toBeWritten = "";
