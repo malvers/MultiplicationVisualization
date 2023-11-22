@@ -15,9 +15,7 @@ class AnimationObject {
     private String toWrite = "not set yet";
     private boolean hasFromPosition;
     private boolean hasToPosition;
-    private Timer timer = new Timer(10, e -> {
-        onStep();
-    });
+    private Timer timer = new Timer(10, e -> onStep());
 
     public AnimationObject(int steps, Visualizer vis) {
 

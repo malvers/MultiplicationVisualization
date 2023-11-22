@@ -8,18 +8,22 @@ import java.util.Random;
 
 public class Visualizer extends JButton implements KeyListener {
 
+    private final int g = 255;
+    private final Color myLightGrayColor = new Color(g, g, g);
     private AnimationObject animeWrite;
     private AnimationObject animeCarry;
     private final JTextPane leftInput;
     private final JTextPane rightInput;
     private String numbersLeft = "9876";
     private String numbersRight = "9876";
-    private final Color myOrange = new Color(255, 190, 0);;
-    protected Color myRed = new Color(180, 0, 0);
+    protected final Color myRed = new Color(180, 0, 0);
+    private final Color myOrange = new Color(255, 190, 0);
+    ;
     private final Color myBlueColor = new Color(0, 0, 100);
-    protected final Color myMagenta = new Color(94, 40, 135);
-    private Color myCyan = new Color(0, 150, 200);
-    private Color myGreen = new Color(140, 180, 42);
+    private final Color myMagenta = new Color(94, 40, 135);
+    private final Color myCyan = new Color(0, 150, 200);
+    private final Color myGreen = new Color(140, 180, 42);
+    private final Color myGrayColor = new Color(100, 100, 100);
     protected final Font multiplicationLineFont = new Font("Arial", Font.PLAIN, 80);
     private final Font carryOverFont = new Font("Arial", Font.PLAIN, 24);
     protected final Font taskFont = new Font("Arial", Font.PLAIN, 24);
@@ -28,8 +32,6 @@ public class Visualizer extends JButton implements KeyListener {
     private final int numDigits = 4;
     private String toBeWritten = "";
     private int carryOver = 0;
-    private final int g = 100;
-    private final Color myGrayColor = new Color(g, g, g);
     protected final ArrayList<Color> myColors = new ArrayList();
     private final ArrayList<String> lines = new ArrayList<>();
     private int stepCounter = 0;
@@ -57,8 +59,6 @@ public class Visualizer extends JButton implements KeyListener {
         leftInput.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         Dimension presSize = new Dimension(180, 86);
         leftInput.setPreferredSize(presSize);
-        int g = 255;
-        Color myLightGrayColor = new Color(g, g, g);
         leftInput.setBackground(myLightGrayColor);
         leftInput.addKeyListener(this);
         leftInput.setFont(multiplicationLineFont);
@@ -81,7 +81,6 @@ public class Visualizer extends JButton implements KeyListener {
 
         init();
     }
-
 
     private void init() {
 
