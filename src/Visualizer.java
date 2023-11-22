@@ -14,11 +14,10 @@ public class Visualizer extends JButton implements KeyListener {
     private AnimationObject animeCarry;
     private final JTextPane leftInput;
     private final JTextPane rightInput;
-    private String numbersLeft = "9876";
-    private String numbersRight = "9876";
+    private String numbersLeft = "5411";
+    private String numbersRight = "5652";
     protected final Color myRed = new Color(180, 0, 0);
     private final Color myOrange = new Color(255, 190, 0);
-    ;
     private final Color myBlueColor = new Color(0, 0, 100);
     private final Color myMagenta = new Color(94, 40, 135);
     private final Color myCyan = new Color(0, 150, 200);
@@ -56,6 +55,7 @@ public class Visualizer extends JButton implements KeyListener {
 
         setLayout(new FlowLayout(FlowLayout.CENTER));
         leftInput = new JTextPane();
+        leftInput.setEditable(false);
         leftInput.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         Dimension presSize = new Dimension(180, 86);
         leftInput.setPreferredSize(presSize);
@@ -66,6 +66,7 @@ public class Visualizer extends JButton implements KeyListener {
         setNumbers(true);
 
         rightInput = new JTextPane();
+        rightInput.setEditable(false);
         rightInput.addKeyListener(this);
         rightInput.setPreferredSize(presSize);
         rightInput.setBackground(myLightGrayColor);
@@ -149,7 +150,7 @@ public class Visualizer extends JButton implements KeyListener {
         int exactSolution = left * right;
         String out = "exact solution: " + left + " * " + right + " = " + exactSolution;
 
-        int ours = doAdditionManually();
+        int ours = Adder.doAdditionManually(lines);
         out += " our solution: " + ours;
         if (ours != exactSolution) {
             out += " ERROR manual addition!";
@@ -157,84 +158,6 @@ public class Visualizer extends JButton implements KeyListener {
         System.out.println(out);
 
         return "" + exactSolution;
-    }
-
-    private int doAdditionManually() {
-
-//        System.out.println("doAdditionManually ...");
-
-        ArrayList<String> linesLocal = new ArrayList<>();
-        int num0right = lines.size() - 1;
-
-        for (int i = 0; i < lines.size(); i++) {
-
-            StringBuilder theLine = new StringBuilder(lines.get(i));
-
-            for (int j = 0; j < num0right; j++) {
-                theLine.append("0");
-            }
-            num0right--;
-
-            StringBuilder tmp = new StringBuilder(theLine.toString());
-            for (int j = 0; j < i; j++) {
-                tmp.insert(0, "0");
-            }
-
-            /// hack
-            while (tmp.length() < 2 * numDigits) {
-//                System.out.println("tmp: " + tmp.length());
-                tmp.insert(0, "0");
-            }
-
-            theLine = new StringBuilder(tmp.toString());
-
-            linesLocal.add(theLine.toString());
-        }
-
-//        System.out.println("Print lines local ...");
-//        for (int i = 0; i < linesLocal.size(); i++) {
-//            System.out.println(linesLocal.get(i));
-//        }
-//        System.out.println("Calculate ... ");
-
-        StringBuilder result = new StringBuilder();
-        int carryOver = 0;
-        for (int i = linesLocal.get(0).length() - 1; i >= 0; i--) {
-
-            int sum = 0;
-//            System.out.print("line: " + i + " -> ");
-            for (String s : linesLocal) {
-
-                int digit = Character.getNumericValue(s.charAt(i));
-                sum += digit;
-//                System.out.print(digit);
-            }
-
-            int toWrite;
-            if (sum + carryOver >= 10) {
-                sum += carryOver;
-                toWrite = sum % 10;
-                carryOver = sum / 10;
-            } else {
-//                carryOver = 0;
-                toWrite = sum + carryOver;
-            }
-//            System.out.print(" sum: " + sum + " write " + toWrite + " cary: " + carryOver);
-            result.append(toWrite);
-//            System.out.println();
-        }
-
-//        System.out.println("");
-
-        StringBuilder reversedStringBuilder = new StringBuilder(result.toString()).reverse();
-        result = new StringBuilder(reversedStringBuilder.toString());
-
-//        int intResult = Integer.parseInt(result.toString());
-
-//        System.out.println("int result: " + intResult);
-//        System.out.println("doAdditionManually done ...");
-
-        return Integer.parseInt(result.toString());
     }
 
     private void randomNumbers() {
@@ -590,7 +513,7 @@ public class Visualizer extends JButton implements KeyListener {
             for (int j = 0; j < numDigits * numDigits; j++) {
                 oneMultiplicationStep();
             }
-            int r1 = doAdditionManually();
+            int r1 = Adder.doAdditionManually(lines);
             int r2 = Integer.parseInt(calculateTrueSolution());
 
             if (r1 != r2) {
@@ -653,9 +576,6 @@ public class Visualizer extends JButton implements KeyListener {
                 for (int j = 0; j < numDigits * numDigits; j++) {
                     oneMultiplicationStep();
                 }
-                for (int i = 0; i < lines.size(); i++) {
-                    System.out.println("line " + i + ": " + lines.get(i));
-                }
                 break;
 
             case KeyEvent.VK_T:
@@ -676,7 +596,7 @@ public class Visualizer extends JButton implements KeyListener {
         Visualizer v = new Visualizer();
         f.add(v);
         f.setSize(1200, 700);
-        f.setLocation(200, 40);
+        f.setLocation(400, 0);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setVisible(true);
     }
