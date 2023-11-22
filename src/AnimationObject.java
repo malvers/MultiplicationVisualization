@@ -17,7 +17,6 @@ class AnimationObject {
     private boolean hasToPosition;
     private Timer timer = new Timer(10, e -> {
         onStep();
-//        repaint();
     });
 
     public AnimationObject(int steps, Visualizer vis) {
@@ -31,6 +30,7 @@ class AnimationObject {
         hasToPosition = false;
         initTimer();
     }
+
     private void initTimer() {
         timer = new Timer(10, e -> {
             onStep();
@@ -44,7 +44,6 @@ class AnimationObject {
         hasToPosition = toPos;
     }
 
-
     private void calculateIncrements() {
 
         double dx = to.getX() - from.getX();
@@ -54,7 +53,7 @@ class AnimationObject {
     }
 
     public boolean hasPositions() {
-        return hasFromPosition && hasToPosition;
+        return !hasFromPosition || !hasToPosition;
     }
 
     public void setValue(int writeValue) {
@@ -65,14 +64,13 @@ class AnimationObject {
 
         animeCounter++;
         if (animeCounter >= stepsToRun) {
-            vis.drawCarryOver = false;
             timer.stop();
         }
         vis.repaint();
         runningPoint.setLocation(runningPoint.getX() + incX, runningPoint.getY() + incY);
     }
 
-    public void paint(Graphics2D g2d) {
+    public void paintZoomFont(Graphics2D g2d) {
 
         if (!hasToPosition || !hasFromPosition) {
             return;
@@ -94,6 +92,17 @@ class AnimationObject {
         double actualShift = deltaShift * animeCounter;
 
         g2d.drawString(toWrite, (int) ((int) runningPoint.getX() - actualShift), (int) runningPoint.getY());
+    }
+
+    public void paint(Graphics2D g2d) {
+
+        if (!hasToPosition || !hasFromPosition) {
+            return;
+        }
+        int xShift = g2d.getFontMetrics().stringWidth(toWrite);
+        g2d.setColor(vis.myMagenta);
+        g2d.setFont(vis.taskFont);
+        g2d.drawString(toWrite, (int) runningPoint.getX() - xShift, (int) runningPoint.getY());
     }
 
     public void setFromPosition(int xFrom, int yFrom) {
