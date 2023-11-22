@@ -19,6 +19,7 @@ public class Visualizer extends JButton implements KeyListener {
         private double xPos = 0.0;
         private double yPos = 0.0;
         private int animeCounter;
+        private String toWrite = "not set yet";
 
         public void setHasPosition(boolean hasPosition) {
             this.hasPosition = hasPosition;
@@ -65,9 +66,9 @@ public class Visualizer extends JButton implements KeyListener {
         private void onStep() {
 
             animeCounter++;
-            System.out.println("oneStep: " + animeCounter + " steps to run " + stepsToRun);
+//            System.out.println("oneStep: " + animeCounter + " steps to run " + stepsToRun);
             if (animeCounter >= stepsToRun) {
-                System.out.println("oneStep: STOP ");
+//                System.out.println("oneStep: STOP ");
                 timer.stop();
                 return;
             }
@@ -96,6 +97,17 @@ public class Visualizer extends JButton implements KeyListener {
         public boolean hasPositions() {
             return hasPosition;
         }
+
+        public void setValue(int writeValue) {
+            toWrite = "" + writeValue;
+        }
+
+        public void paint(Graphics2D g2d) {
+
+            g2d.setColor(myColors.get(rightPos));
+            g2d.setFont(myTaskFont);
+            g2d.drawString(toWrite, (int) xPos, (int) yPos);
+        }
     }
 
     private AnimationObject anime = null;
@@ -105,7 +117,10 @@ public class Visualizer extends JButton implements KeyListener {
     private String numbersRight = "2219";
     private final Color myBlueColor = new Color(0, 0, 100);
     private final Font myFont80 = new Font("Arial", Font.PLAIN, 80);
-    private final Font mySmallFont = new Font("Arial", Font.PLAIN, 24);
+    private final Font mycarryOverFont = new Font("Arial", Font.PLAIN, 24);
+
+    private Font myTaskFont = new Font("Arial", Font.PLAIN, 26);
+
     private int rightPos = 0;
     private final int numDigits = 4;
     private String toBeWritten = "";
@@ -371,13 +386,12 @@ public class Visualizer extends JButton implements KeyListener {
         if (anime == null) {
             return;
         }
-        g2d.setColor(myBlueColor);
-        g2d.fillRect((int) anime.getXPos(), (int) anime.getYPos(), 16, 16);
+        anime.paint(g2d);
     }
 
     private void drawActualTask(Graphics2D g2d, int xPos, int yTaskPos, int width) {
 
-        g2d.setFont(new Font("Arial", Font.PLAIN, 26));
+        g2d.setFont(myTaskFont);
         FontMetrics fontMetrics = g2d.getFontMetrics(g2d.getFont());
 
         String leftDigits = leftInput.getText();
@@ -491,28 +505,36 @@ public class Visualizer extends JButton implements KeyListener {
 
             int writeValue = Integer.parseInt(draw.trim());
             if (!anime.hasPositions()) {
-                System.out.println("set position - write int: " + writeValue + " x: " + xTaskPos + " y: " + yTaskPos);
-                anime.setPosition(xTaskPos, yTaskPos, xTaskPos, yTaskPos + 200, 200);
+//                System.out.println("set position - write int: " + writeValue + " x: " + xTaskPos + " y: " + yTaskPos);
+                anime.setPosition(xTaskPos, yTaskPos, xTaskPos, yTaskPos + 200, 100);
+                anime.setValue(writeValue);
             }
         } else {
             draw = str.substring(pos, str.indexOf("carry"));
             g2d.setColor(myColors.get(rightPos));
             int xTaskPos = leftXStart + shift;
             g2d.drawString(draw, xTaskPos, yTaskPos);
-
             int writeValue = Integer.parseInt(draw.trim());
+
+            anime.setPosition(xTaskPos, yTaskPos, xTaskPos, yTaskPos + 200, 100);
+            anime.setValue(writeValue);
+
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry"), str.indexOf("carry") + 5);
             g2d.setColor(myGrayColor);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
-//            System.out.println("draw: |" + draw + "|");
+            if (verbose) {
+                System.out.println("draw: |" + draw + "|");
+            }
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry") + 5);
             g2d.setColor(Color.RED);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
-//            System.out.println("draw: |" + draw + "|");
+            if (verbose) {
+                System.out.println("draw: |" + draw + "|");
+            }
         }
     }
 
@@ -649,9 +671,9 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void drawCarryOver(Graphics2D g2d, int yPos, int shift) {
 
-        if (carryOver > 0  /*&&leftPos < numDigits - 1*/) {
+        if (carryOver > 0 ) {
             g2d.setColor(Color.RED);
-            g2d.setFont(mySmallFont);
+            g2d.setFont(mycarryOverFont);
             int carryPos;
             carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos) * shift - 8;
             g2d.drawString("" + carryOver, carryPos, yPos - 4);
@@ -733,13 +755,11 @@ public class Visualizer extends JButton implements KeyListener {
             case KeyEvent.VK_I:
                 init();
                 break;
-
             case KeyEvent.VK_D:
                 System.out.println("Debug ... run test animation");
                 anime = new AnimationObject(40);
                 anime.start();
                 break;
-
             case KeyEvent.VK_P:
                 for (int j = 0; j < numDigits * numDigits; j++) {
                     oneMultiplicationStep();
