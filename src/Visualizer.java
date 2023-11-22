@@ -101,8 +101,6 @@ public class Visualizer extends JButton implements KeyListener {
             double actualShift = deltaShift * animeCounter;
 
             g2d.drawString(toWrite, (int) ((int) runningPoint.getX() - actualShift), (int) runningPoint.getY());
-
-//            g2d.drawLine((int) from.getX(), (int) from.getY(), (int) to.getX(), (int) to.getY());
         }
 
         public void setFromPosition(int xFrom, int yFrom) {
@@ -460,18 +458,11 @@ public class Visualizer extends JButton implements KeyListener {
         draw = str.substring(3, pos);
 
         /// draw the digit after the + sign in red
-        boolean verbose = false;
         int plusPos = draw.indexOf("+");
-        if (verbose) {
-            System.out.println("draw: |" + draw + "| plusPos: " + plusPos);
-        }
         if (plusPos >= 0) {
 
             /// up to the + sign in gray
             String myStr = draw.substring(0, plusPos + 1);
-            if (verbose) {
-                System.out.println("myStr: |" + myStr + "| length: " + myStr.length());
-            }
 
             g2d.setColor(myGrayColor);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
@@ -479,9 +470,6 @@ public class Visualizer extends JButton implements KeyListener {
 
             /// the digit after the + sign in red
             myStr = draw.substring(plusPos + 1, plusPos + 3);
-            if (verbose) {
-                System.out.println("myStr: |" + myStr + "| length: " + myStr.length());
-            }
 
             g2d.setColor(Color.RED);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
@@ -489,14 +477,7 @@ public class Visualizer extends JButton implements KeyListener {
 
             String helpStr = draw.substring(plusPos + 1);
 
-            if (verbose) {
-                System.out.println("help:  |" + helpStr + "| length: " + helpStr.length());
-            }
-
             myStr = helpStr.substring(helpStr.indexOf("=") - 1, helpStr.indexOf("write") + 6);
-            if (verbose) {
-                System.out.println("myStr: |" + myStr + "| length: " + myStr.length());
-            }
 
             /// after the red digit in gray again
             g2d.setColor(myGrayColor);
@@ -519,7 +500,6 @@ public class Visualizer extends JButton implements KeyListener {
 
             int writeValue = Integer.parseInt(draw.trim());
             if (!anime.hasPositions()) {
-//                System.out.println("set position - write int: " + writeValue + " x: " + xTaskPos + " y: " + yTaskPos);
                 anime.setFromPosition(xTaskPos, yTaskPos);
                 anime.setValue(writeValue);
             }
@@ -530,25 +510,21 @@ public class Visualizer extends JButton implements KeyListener {
             g2d.drawString(draw, xTaskPos, yTaskPos);
             int writeValue = Integer.parseInt(draw.trim());
 
-            anime.setFromPosition(xTaskPos, yTaskPos);
-            anime.setValue(writeValue);
+            if (!anime.hasPositions()) {
+                anime.setFromPosition(xTaskPos, yTaskPos);
+                anime.setValue(writeValue);
+            }
 
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry"), str.indexOf("carry") + 5);
             g2d.setColor(myGrayColor);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
-            if (verbose) {
-                System.out.println("draw: |" + draw + "|");
-            }
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry") + 5);
             g2d.setColor(Color.RED);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
-            if (verbose) {
-                System.out.println("draw: |" + draw + "|");
-            }
         }
     }
 
