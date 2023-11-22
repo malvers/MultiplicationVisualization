@@ -107,6 +107,19 @@ public class Visualizer extends JButton implements KeyListener {
             g2d.setColor(myColors.get(rightPos));
             g2d.setFont(myTaskFont);
             g2d.drawString(toWrite, (int) xPos, (int) yPos);
+            int xPosTo = (int) (xPos + stepsToRun * incY);
+            int yPosTo = (int) (yPos + stepsToRun * incY);
+            g2d.drawLine((int) xPos, (int) yPos, xPosTo, yPosTo);
+        }
+
+        public void setToPosition(int xTo, int yTo) {
+
+            double dx = xTo - xPos;
+            double dy = yTo - yPos;
+            incX = dx / stepsToRun;
+            incY = dy / stepsToRun;
+
+            hasPosition = true;
         }
     }
 
@@ -118,9 +131,7 @@ public class Visualizer extends JButton implements KeyListener {
     private final Color myBlueColor = new Color(0, 0, 100);
     private final Font myFont80 = new Font("Arial", Font.PLAIN, 80);
     private final Font mycarryOverFont = new Font("Arial", Font.PLAIN, 24);
-
     private Font myTaskFont = new Font("Arial", Font.PLAIN, 26);
-
     private int rightPos = 0;
     private final int numDigits = 4;
     private String toBeWritten = "";
@@ -666,12 +677,15 @@ public class Visualizer extends JButton implements KeyListener {
 
         int toBeWrittenLength = fontMetrics.stringWidth(toBeWritten);
         g2d.setColor(myColors.get(rightPos));
-        g2d.drawString("" + toBeWritten, rightInput.getX() + ((rightPos + 1) * shift) - toBeWrittenLength, yPos + (rightPos + 1) * fontSize80);
+        int xPosLocal = rightInput.getX() + ((rightPos + 1) * shift) - toBeWrittenLength;
+        int yPosLocal = yPos + (rightPos + 1) * fontSize80;
+        anime.setToPosition(xPosLocal - toBeWrittenLength, yPosLocal);
+        g2d.drawString("" + toBeWritten, xPosLocal, yPosLocal);
     }
 
     private void drawCarryOver(Graphics2D g2d, int yPos, int shift) {
 
-        if (carryOver > 0 ) {
+        if (carryOver > 0) {
             g2d.setColor(Color.RED);
             g2d.setFont(mycarryOverFont);
             int carryPos;
