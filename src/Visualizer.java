@@ -1,8 +1,6 @@
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
@@ -19,9 +17,9 @@ public class Visualizer extends JButton implements KeyListener {
             anime.onStep();
             repaint();
         });
-        private int stepsToRun;
+        private final int stepsToRun;
         private Point2D from;
-        private Point2D runningPoint = new Point2D.Double(0, 0);
+        private final Point2D runningPoint = new Point2D.Double(0, 0);
         private Point2D to;
         private int animeCounter = 0;
         private String toWrite = "not set yet";
@@ -88,21 +86,23 @@ public class Visualizer extends JButton implements KeyListener {
             }
 
             g2d.setColor(myColors.get(rightPos));
-            g2d.setColor(myBlueColor);
             g2d.setFont(taskFont);
 
             int startSize = taskFont.getSize();
             int endSize = multiplicationLineFont.getSize();
-            double delta = (double)(endSize - startSize) / (double)stepsToRun;
+            double delta = (double) (endSize - startSize) / (double) stepsToRun;
 
             int newFontSize = (int) (startSize + delta * animeCounter);
 
-            System.out.println("new size: " + newFontSize + " acount: " + animeCounter + " sr: " + stepsToRun);
-
             g2d.setFont(new Font("Arial", Font.PLAIN, newFontSize));
-            g2d.drawString(toWrite, (int) runningPoint.getX(), (int) runningPoint.getY());
+            int xShift = g2d.getFontMetrics().stringWidth(toWrite);
 
-            g2d.drawLine((int) from.getX(), (int) from.getY(), (int) to.getX(), (int) to.getY());
+            double deltaShift = xShift / (double) stepsToRun;
+            double actualShift = deltaShift * animeCounter;
+
+            g2d.drawString(toWrite, (int) ((int) runningPoint.getX() - actualShift), (int) runningPoint.getY());
+
+//            g2d.drawLine((int) from.getX(), (int) from.getY(), (int) to.getX(), (int) to.getY());
         }
 
         public void setFromPosition(int xFrom, int yFrom) {
@@ -125,11 +125,11 @@ public class Visualizer extends JButton implements KeyListener {
         }
     }
 
-    private AnimationObject anime = null;
+    private AnimationObject anime;
     private final JTextPane leftInput;
     private final JTextPane rightInput;
-    private String numbersLeft = "1000";
-    private String numbersRight = "1000";
+    private String numbersLeft = "9876";
+    private String numbersRight = "9876";
     private final Color myBlueColor = new Color(0, 0, 100);
     private final Font multiplicationLineFont = new Font("Arial", Font.PLAIN, 80);
     private final Font carryOverFont = new Font("Arial", Font.PLAIN, 24);
@@ -788,14 +788,6 @@ public class Visualizer extends JButton implements KeyListener {
                 break;
         }
         repaint();
-    }
-
-    private void sleep(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
     }
 
     @Override
