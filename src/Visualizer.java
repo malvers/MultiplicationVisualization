@@ -51,6 +51,7 @@ public class Visualizer extends JButton implements KeyListener {
         }
 
         public void start() {
+            drawCarryOver = true;
             timer.start();
         }
 
@@ -74,6 +75,7 @@ public class Visualizer extends JButton implements KeyListener {
 
             animeCounter++;
             if (animeCounter >= stepsToRun) {
+                drawCarryOver = false;
                 timer.stop();
             }
             runningPoint.setLocation(runningPoint.getX() + incX, runningPoint.getY() + incY);
@@ -136,6 +138,7 @@ public class Visualizer extends JButton implements KeyListener {
     private int rightPos = 0;
     private final int numDigits = 4;
     private String toBeWritten = "";
+    private boolean drawCarryOver = true;
     private int carryOver = 0;
     private final int g = 100;
     private final Color myGrayColor = new Color(g, g, g);
@@ -557,7 +560,7 @@ public class Visualizer extends JButton implements KeyListener {
 
         g2d.drawArc(xPosLeft, yPos, width, arcHeight, 0, 180);
 
-        drawActualTask(g2d, xPosLeft, yPos - 10, width);
+        drawActualTask(g2d, xPosLeft, yPos - 16, width);
     }
 
     private void oneMultiplicationStep() {
@@ -664,7 +667,11 @@ public class Visualizer extends JButton implements KeyListener {
     private void drawCarryOver(Graphics2D g2d, int yPos, int shift) {
 
         if (carryOver > 0) {
-            g2d.setColor(Color.RED);
+            if (drawCarryOver) {
+                g2d.setColor(Color.RED);
+            } else {
+                g2d.setColor(Color.GRAY);
+            }
             g2d.setFont(carryOverFont);
             int carryPos;
             carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos) * shift - 8;
