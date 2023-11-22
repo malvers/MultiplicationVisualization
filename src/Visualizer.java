@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -16,37 +17,29 @@ public class Visualizer extends JButton implements KeyListener {
         private double incY;
         private Timer timer;
         private int stepsToRun;
-        private double xPos = 0.0;
-        private double yPos = 0.0;
-        private int animeCounter;
+        private Point2D from;
+        private Point2D runningPoint = new Point2D.Double(0, 0);
+        private Point2D to;
+        private int animeCounter = 0;
         private String toWrite = "not set yet";
-
-        public void setHasPosition(boolean hasPosition) {
-            this.hasPosition = hasPosition;
-        }
-
-        private boolean hasPosition;
+        private boolean hasFromPosition;
+        private boolean hasToPosition;
 
         public AnimationObject(int steps) {
-            initTimer();
+
+            from = new Point2D.Double();
+            runningPoint.setLocation(from);
+            to = new Point2D.Double();
             stepsToRun = steps;
-            hasPosition = false;
+            hasFromPosition = false;
+            hasToPosition = false;
+            initTimer();
         }
 
-        public double getYPos() {
-            return yPos;
-        }
+        public void setHasPositions(boolean fromPos, boolean toPos) {
 
-        public void setYPos(double yPos) {
-            this.yPos = yPos;
-        }
-
-        public double getXPos() {
-            return xPos;
-        }
-
-        public void setXPos(double xPos) {
-            this.xPos = xPos;
+            hasFromPosition = fromPos;
+            hasToPosition = toPos;
         }
 
         private void initTimer() {
@@ -59,78 +52,81 @@ public class Visualizer extends JButton implements KeyListener {
             });
         }
 
-        private Rectangle getRectangle() {
-            return new Rectangle((int) xPos, (int) yPos, 100, 100);
-        }
-
-        private void onStep() {
-
-            animeCounter++;
-//            System.out.println("oneStep: " + animeCounter + " steps to run " + stepsToRun);
-            if (animeCounter >= stepsToRun) {
-//                System.out.println("oneStep: STOP ");
-                timer.stop();
-                return;
-            }
-            xPos += incX;
-            yPos += incY;
-        }
-
         public void start() {
             timer.start();
         }
 
-        public void setPosition(int xFrom, int yFrom, int xTo, int yTo, int steps) {
+        private void calculateIncrements() {
 
-            stepsToRun = steps;
-            animeCounter = 0;
-            double dx = xTo - xFrom;
-            double dy = yTo - yFrom;
-            incX = dx / steps;
-            incY = dy / steps;
-            xPos = xFrom;
-            yPos = yFrom;
-
-            hasPosition = true;
+            double dx = to.getX() - from.getX();
+            double dy = to.getY() - from.getY();
+            incX = dx / stepsToRun;
+            incY = dy / stepsToRun;
         }
 
         public boolean hasPositions() {
-            return hasPosition;
+            return hasFromPosition && hasToPosition;
         }
 
         public void setValue(int writeValue) {
             toWrite = "" + writeValue;
         }
 
+        private void onStep() {
+
+            animeCounter++;
+            System.out.println("counter: " + animeCounter);
+            if (animeCounter >= stepsToRun) {
+                timer.stop();
+                System.out.println("STOP");
+            }
+            runningPoint.setLocation(runningPoint.getX() + incX, runningPoint.getY() + incY);
+
+            System.out.println("rp: " + runningPoint);
+        }
+
         public void paint(Graphics2D g2d) {
 
+            if (!hasToPosition || !hasFromPosition) {
+                return;
+            }
+
             g2d.setColor(myColors.get(rightPos));
+            g2d.setColor(myBlueColor);
             g2d.setFont(myTaskFont);
-            g2d.drawString(toWrite, (int) xPos, (int) yPos);
-            int xPosTo = (int) (xPos + stepsToRun * incY);
-            int yPosTo = (int) (yPos + stepsToRun * incY);
-            g2d.drawLine((int) xPos, (int) yPos, xPosTo, yPosTo);
+            g2d.drawString(toWrite, (int) runningPoint.getX(), (int) runningPoint.getY());
+
+            g2d.drawLine((int) from.getX(), (int) from.getY(), (int) to.getX(), (int) to.getY());
+        }
+
+        public void setFromPosition(int xFrom, int yFrom) {
+
+            from = new Point2D.Double(xFrom, yFrom);
+            runningPoint.setLocation(from);
+            hasFromPosition = true;
+
+            animeCounter = 0;
+
+            calculateIncrements();
         }
 
         public void setToPosition(int xTo, int yTo) {
 
-            double dx = xTo - xPos;
-            double dy = yTo - yPos;
-            incX = dx / stepsToRun;
-            incY = dy / stepsToRun;
+            to = new Point2D.Double(xTo, yTo);
+            hasToPosition = true;
 
-            hasPosition = true;
+            calculateIncrements();
         }
     }
 
     private AnimationObject anime = null;
     private final JTextPane leftInput;
     private final JTextPane rightInput;
-    private String numbersLeft = "4041";
-    private String numbersRight = "2219";
+    private String numbersLeft = "1000";
+    private String numbersRight = "1000";
     private final Color myBlueColor = new Color(0, 0, 100);
     private final Font myFont80 = new Font("Arial", Font.PLAIN, 80);
-    private final Font mycarryOverFont = new Font("Arial", Font.PLAIN, 24);
+    private final Font myCarryOverFont = new Font("Arial", Font.PLAIN, 24);
     private Font myTaskFont = new Font("Arial", Font.PLAIN, 26);
     private int rightPos = 0;
     private final int numDigits = 4;
@@ -153,7 +149,7 @@ public class Visualizer extends JButton implements KeyListener {
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder());
 
-        anime = new AnimationObject(10);
+        anime = new AnimationObject(40);
 
         Color myGreenColor = new Color(140, 180, 42);
         myColors.add(myGreenColor);
@@ -196,6 +192,7 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void init() {
 
+        anime = new AnimationObject(40);
         leftPos = 0;
         rightPos = 0;
         toBeWritten = "";
@@ -517,7 +514,7 @@ public class Visualizer extends JButton implements KeyListener {
             int writeValue = Integer.parseInt(draw.trim());
             if (!anime.hasPositions()) {
 //                System.out.println("set position - write int: " + writeValue + " x: " + xTaskPos + " y: " + yTaskPos);
-                anime.setPosition(xTaskPos, yTaskPos, xTaskPos, yTaskPos + 200, 100);
+                anime.setFromPosition(xTaskPos, yTaskPos);
                 anime.setValue(writeValue);
             }
         } else {
@@ -527,7 +524,7 @@ public class Visualizer extends JButton implements KeyListener {
             g2d.drawString(draw, xTaskPos, yTaskPos);
             int writeValue = Integer.parseInt(draw.trim());
 
-            anime.setPosition(xTaskPos, yTaskPos, xTaskPos, yTaskPos + 200, 100);
+            anime.setFromPosition(xTaskPos, yTaskPos);
             anime.setValue(writeValue);
 
             shift += fontMetrics.stringWidth(draw);
@@ -605,8 +602,7 @@ public class Visualizer extends JButton implements KeyListener {
             carryOver = 0;
         }
 
-        String tmp = toBeWritten;
-        toBeWritten = digitToWrite + tmp;
+        toBeWritten = digitToWrite + toBeWritten;
 
         if (leftPos == numDigits - 1 && carryOver > 0) {
             toBeWritten = carryOver + toBeWritten;
@@ -675,11 +671,11 @@ public class Visualizer extends JButton implements KeyListener {
             }
         }
 
-        int toBeWrittenLength = fontMetrics.stringWidth(toBeWritten);
+        int toBeWrittenLen = fontMetrics.stringWidth(toBeWritten);
         g2d.setColor(myColors.get(rightPos));
-        int xPosLocal = rightInput.getX() + ((rightPos + 1) * shift) - toBeWrittenLength;
+        int xPosLocal = rightInput.getX() + ((rightPos + 1) * shift) - toBeWrittenLen;
         int yPosLocal = yPos + (rightPos + 1) * fontSize80;
-        anime.setToPosition(xPosLocal - toBeWrittenLength, yPosLocal);
+        anime.setToPosition(xPosLocal, yPosLocal);
         g2d.drawString("" + toBeWritten, xPosLocal, yPosLocal);
     }
 
@@ -687,7 +683,7 @@ public class Visualizer extends JButton implements KeyListener {
 
         if (carryOver > 0) {
             g2d.setColor(Color.RED);
-            g2d.setFont(mycarryOverFont);
+            g2d.setFont(myCarryOverFont);
             int carryPos;
             carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos) * shift - 8;
             g2d.drawString("" + carryOver, carryPos, yPos - 4);
@@ -759,7 +755,7 @@ public class Visualizer extends JButton implements KeyListener {
                 break;
             case KeyEvent.VK_LEFT:
             case KeyEvent.VK_RIGHT:
-                anime.setHasPosition(false);
+                anime.setHasPositions(false, false);
                 oneMultiplicationStep();
                 anime.start();
                 break;
@@ -770,9 +766,7 @@ public class Visualizer extends JButton implements KeyListener {
                 init();
                 break;
             case KeyEvent.VK_D:
-                System.out.println("Debug ... run test animation");
-                anime = new AnimationObject(40);
-                anime.start();
+                System.out.println("Debug ...");
                 break;
             case KeyEvent.VK_P:
                 for (int j = 0; j < numDigits * numDigits; j++) {
