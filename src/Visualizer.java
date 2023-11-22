@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -13,13 +12,25 @@ public class Visualizer extends JButton implements KeyListener {
 
     class AnimationObject {
 
-        private final double incX;
-        private final double incY;
-        private final Timer timer;
+        private double incX;
+        private double incY;
+        private Timer timer;
         private int stepsToRun;
         private double xPos = 0.0;
         private double yPos = 0.0;
         private int animeCounter;
+
+        public void setHasPosition(boolean hasPosition) {
+            this.hasPosition = hasPosition;
+        }
+
+        private boolean hasPosition;
+
+        public AnimationObject(int steps) {
+            initTimer();
+            stepsToRun = steps;
+            hasPosition = false;
+        }
 
         public double getYPos() {
             return yPos;
@@ -37,9 +48,7 @@ public class Visualizer extends JButton implements KeyListener {
             this.xPos = xPos;
         }
 
-        public AnimationObject(Point2D from, Point2D to, int steps) {
-
-            stepsToRun = steps;
+        private void initTimer() {
             timer = new Timer(10, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -47,12 +56,6 @@ public class Visualizer extends JButton implements KeyListener {
                     repaint();
                 }
             });
-
-            animeCounter = 0;
-            double dx = to.getX() - from.getX();
-            double dy = to.getY() - from.getY();
-            incX = dx / steps;
-            incY = dy / steps;
         }
 
         private Rectangle getRectangle() {
@@ -60,9 +63,13 @@ public class Visualizer extends JButton implements KeyListener {
         }
 
         private void onStep() {
+
             animeCounter++;
+            System.out.println("oneStep: " + animeCounter + " steps to run " + stepsToRun);
             if (animeCounter >= stepsToRun) {
+                System.out.println("oneStep: STOP ");
                 timer.stop();
+                return;
             }
             xPos += incX;
             yPos += incY;
@@ -70,6 +77,24 @@ public class Visualizer extends JButton implements KeyListener {
 
         public void start() {
             timer.start();
+        }
+
+        public void setPosition(int xFrom, int yFrom, int xTo, int yTo, int steps) {
+
+            stepsToRun = steps;
+            animeCounter = 0;
+            double dx = xTo - xFrom;
+            double dy = yTo - yFrom;
+            incX = dx / steps;
+            incY = dy / steps;
+            xPos = xFrom;
+            yPos = yFrom;
+
+            hasPosition = true;
+        }
+
+        public boolean hasPositions() {
+            return hasPosition;
         }
     }
 
@@ -101,6 +126,8 @@ public class Visualizer extends JButton implements KeyListener {
         setOpaque(true);
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder());
+
+        anime = new AnimationObject(10);
 
         Color myGreenColor = new Color(140, 180, 42);
         myColors.add(myGreenColor);
@@ -369,8 +396,6 @@ public class Visualizer extends JButton implements KeyListener {
             str += " + " + carryOver + " = " + (result + carryOver);
         }
 
-        System.out.println(leftPos + " carry: " + carryOver + " newCarry: " + carryOverNew);
-
         if (leftPos >= numDigits - 1 && carryOverNew > 0) {
             str += " ➙ write " + (result + carryOver);
         } else {
@@ -379,7 +404,6 @@ public class Visualizer extends JButton implements KeyListener {
                 str += " carry " + carryOverNew;
             }
         }
-
 
         int stringWidth = fontMetrics.stringWidth(str);
 
@@ -462,22 +486,33 @@ public class Visualizer extends JButton implements KeyListener {
         if (!str.contains("carry")) {
             draw = str.substring(pos);
             g2d.setColor(myColors.get(rightPos));
-            g2d.drawString(draw, leftXStart + shift, yTaskPos);
+            int xTaskPos = leftXStart + shift;
+            g2d.drawString(draw, xTaskPos, yTaskPos);
 
+            int writeValue = Integer.parseInt(draw.trim());
+            if (!anime.hasPositions()) {
+                System.out.println("set position - write int: " + writeValue + " x: " + xTaskPos + " y: " + yTaskPos);
+                anime.setPosition(xTaskPos, yTaskPos, xTaskPos, yTaskPos + 200, 200);
+            }
         } else {
             draw = str.substring(pos, str.indexOf("carry"));
             g2d.setColor(myColors.get(rightPos));
-            g2d.drawString(draw, leftXStart + shift, yTaskPos);
+            int xTaskPos = leftXStart + shift;
+            g2d.drawString(draw, xTaskPos, yTaskPos);
+
+            int writeValue = Integer.parseInt(draw.trim());
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry"), str.indexOf("carry") + 5);
             g2d.setColor(myGrayColor);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
+//            System.out.println("draw: |" + draw + "|");
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry") + 5);
             g2d.setColor(Color.RED);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
+//            System.out.println("draw: |" + draw + "|");
         }
     }
 
@@ -688,7 +723,9 @@ public class Visualizer extends JButton implements KeyListener {
                 break;
             case KeyEvent.VK_LEFT:
             case KeyEvent.VK_RIGHT:
+                anime.setHasPosition(false);
                 oneMultiplicationStep();
+                anime.start();
                 break;
             case KeyEvent.VK_ESCAPE:
                 System.exit(0);
@@ -698,9 +735,8 @@ public class Visualizer extends JButton implements KeyListener {
                 break;
 
             case KeyEvent.VK_D:
-                System.out.println("Debug");
-                int steps = 100;
-                anime = new AnimationObject(new Point2D.Double(0, 0), new Point2D.Double(600, 600), steps);
+                System.out.println("Debug ... run test animation");
+                anime = new AnimationObject(40);
                 anime.start();
                 break;
 
