@@ -2,10 +2,8 @@ import java.util.ArrayList;
 
 public class Adder {
 
-    protected static int doAdditionManually(ArrayList<String> lines) {
+    protected static int doAdditionManually(ArrayList<String> lines, boolean verbose) {
 
-        boolean vTrick = false;
-        boolean verbose = vTrick;
         if (verbose) {
             System.out.println("Adder.doAdditionManually ...");
         }

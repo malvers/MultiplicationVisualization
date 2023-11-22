@@ -150,7 +150,7 @@ public class Visualizer extends JButton implements KeyListener {
         int exactSolution = left * right;
         String out = "exact solution: " + left + " * " + right + " = " + exactSolution;
 
-        int ours = Adder.doAdditionManually(lines);
+        int ours = Adder.doAdditionManually(lines, false);
         out += " our solution: " + ours;
         if (ours != exactSolution) {
             out += " ERROR manual addition!";
@@ -513,7 +513,7 @@ public class Visualizer extends JButton implements KeyListener {
             for (int j = 0; j < numDigits * numDigits; j++) {
                 oneMultiplicationStep();
             }
-            int r1 = Adder.doAdditionManually(lines);
+            int r1 = Adder.doAdditionManually(lines, false);
             int r2 = Integer.parseInt(calculateTrueSolution());
 
             if (r1 != r2) {
