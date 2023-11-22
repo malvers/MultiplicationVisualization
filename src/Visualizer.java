@@ -10,8 +10,8 @@ public class Visualizer extends JButton implements KeyListener {
 
     private final JTextPane leftInput;
     private final JTextPane rightInput;
-    private String numbersLeft = "4000";
-    private String numbersRight = "9876";
+    private String numbersLeft = "4463";
+    private String numbersRight = "7909";
     private final Color myBlueColor = new Color(0, 0, 100);
     private final Font myFont80 = new Font("Arial", Font.PLAIN, 80);
     private final Font mySmallFont = new Font("Arial", Font.PLAIN, 24);
@@ -285,21 +285,21 @@ public class Visualizer extends JButton implements KeyListener {
         int result = digitLeft * digitRight;
         String str = digitLeft + "・" + digitRight + " = " + result;
 
-        int newCarryOver = result / 10;
+        int carryOverNew = result / 10;
         int write = (result + carryOver) % 10;
 
         if (carryOver > 0) {
             str += " + " + carryOver + " = " + (result + carryOver);
         }
 
-//        System.out.println(leftPos + " carry: " + carryOver + " newCarry: " + newCarryOver);
+        System.out.println(leftPos + " carry: " + carryOver + " newCarry: " + carryOverNew);
 
-        if (leftPos >= numDigits - 1 && newCarryOver > 0) {
-            str += " ➙ write " + newCarryOver + write;
+        if (leftPos >= numDigits - 1 && carryOverNew > 0) {
+            str += " ➙ write " + (result + carryOver);
         } else {
             str += " ➙ write " + write;
-            if (newCarryOver > 0) {
-                str += " carry " + newCarryOver;
+            if (carryOverNew > 0) {
+                str += " carry " + carryOverNew;
             }
         }
 
@@ -330,30 +330,39 @@ public class Visualizer extends JButton implements KeyListener {
         int pos = str.indexOf("write") + 6;
         draw = str.substring(3, pos);
 
-        int plusSign = draw.indexOf("+");
-        if (plusSign >= 0) {
+        /// draw the digit after the + sign in red
+        boolean verbose = false;
+        int plusPos = draw.indexOf("+");
+        if(verbose) System.out.println("draw: |" + draw + "| plusPos: " + plusPos);
+        if (plusPos >= 0) {
 
-            String mstr = draw.substring(0, plusSign + 2);
+            /// up to the + sign in gray
+            String myStr = draw.substring(0, plusPos + 1);
+            if(verbose) System.out.println("myStr: |" + myStr + "| length: " + myStr.length());
 
             g2d.setColor(myGrayColor);
-            g2d.drawString(mstr, leftXStart + shift, yTaskPos);
-            shift += fontMetrics.stringWidth(mstr);
+            g2d.drawString(myStr, leftXStart + shift, yTaskPos);
+            shift += fontMetrics.stringWidth(myStr);
 
-            mstr = draw.substring(plusSign + 2, plusSign + 3);
+            /// the digit after the + sign in red
+            myStr = draw.substring(plusPos + 1, plusPos + 3);
+            if(verbose) System.out.println("myStr: |" + myStr + "| length: " + myStr.length());
 
             g2d.setColor(Color.RED);
-            g2d.drawString(mstr, leftXStart + shift, yTaskPos);
-            shift += fontMetrics.stringWidth(mstr + "|");
+            g2d.drawString(myStr, leftXStart + shift, yTaskPos);
+            shift += fontMetrics.stringWidth(myStr);
 
-            int to = plusSign + 17;
-            if (!(to > draw.length())) {
-                to--;
-                mstr = draw.substring(plusSign + 4, to);
-            }
+            String helpStr =  draw.substring(plusPos+1);
 
+            if(verbose) System.out.println("help:  |" + helpStr + "| length: " + helpStr.length());
+
+            myStr = helpStr.substring(helpStr.indexOf("=")-1, helpStr.indexOf("write") + 6);
+            if(verbose) System.out.println("myStr: |" + myStr + "| length: " + myStr.length());
+
+            /// after the red digit in gray again
             g2d.setColor(myGrayColor);
-            g2d.drawString(mstr, leftXStart + shift, yTaskPos);
-            shift += fontMetrics.stringWidth(mstr);
+            g2d.drawString(myStr, leftXStart + shift, yTaskPos);
+            shift += fontMetrics.stringWidth(myStr);
 
         } else {
 
