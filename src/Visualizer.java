@@ -14,8 +14,12 @@ public class Visualizer extends JButton implements KeyListener {
     private final JTextPane rightInput;
     private String numbersLeft = "9876";
     private String numbersRight = "9876";
+    private final Color myOrange = new Color(255, 190, 0);;
+    protected Color myRed = new Color(180, 0, 0);
     private final Color myBlueColor = new Color(0, 0, 100);
     protected final Color myMagenta = new Color(94, 40, 135);
+    private Color myCyan = new Color(0, 150, 200);
+    private Color myGreen = new Color(140, 180, 42);
     protected final Font multiplicationLineFont = new Font("Arial", Font.PLAIN, 80);
     private final Font carryOverFont = new Font("Arial", Font.PLAIN, 24);
     protected final Font taskFont = new Font("Arial", Font.PLAIN, 24);
@@ -43,14 +47,10 @@ public class Visualizer extends JButton implements KeyListener {
         animeWrite = new AnimationObject(40, this);
         animeCarry = new AnimationObject(40, this);
 
-        Color myGreen = new Color(140, 180, 42);
         myColors.add(myGreen);
-        Color myOrange = new Color(255, 190, 0);
         myColors.add(myOrange);
-        Color myCyan = new Color(0, 150, 200);
         myColors.add(myCyan);
-        Color myRed = new Color(180, 0, 0);
-        myColors.add(myRed);
+        myColors.add(myMagenta);
 
         setLayout(new FlowLayout(FlowLayout.CENTER));
         leftInput = new JTextPane();
@@ -362,7 +362,7 @@ public class Visualizer extends JButton implements KeyListener {
             /// the digit after the + sign in red
             myStr = draw.substring(plusPos + 1, plusPos + 3);
 
-            g2d.setColor(myMagenta);
+            g2d.setColor(myRed);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(myStr);
 
@@ -414,7 +414,7 @@ public class Visualizer extends JButton implements KeyListener {
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry") + 5);
-            g2d.setColor(myMagenta);
+            g2d.setColor(myRed);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
 
             if (animeCarry.hasPositions()) {
