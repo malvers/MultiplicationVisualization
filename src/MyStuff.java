@@ -1,6 +1,6 @@
 import java.awt.*;
 
-public class MyColors {
+public class MyStuff {
 
     public static Color myLightGray = new Color(180, 180, 180);
     public static Color myRed = new Color(180, 0, 0);

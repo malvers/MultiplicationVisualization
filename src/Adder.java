@@ -149,7 +149,7 @@ public class Adder {
         }
 
         if (carryOver > 0) {
-            g2d.setColor(MyColors.myRed);
+            g2d.setColor(MyStuff.myRed);
             g2d.drawString(carryOver + "", myXPos, yPos - 4);
         }
         g2d.setFont(font);

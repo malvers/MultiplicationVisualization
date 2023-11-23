@@ -45,10 +45,10 @@ public class Visualizer extends JButton implements KeyListener {
         animeWrite = new AnimationObject(40, this);
         animeCarry = new AnimationObject(40, this);
 
-        myColors.add(MyColors.myGreen);
-        myColors.add(MyColors.myOrange);
-        myColors.add(MyColors.myCyan);
-        myColors.add(MyColors.myMagenta);
+        myColors.add(MyStuff.myGreen);
+        myColors.add(MyStuff.myOrange);
+        myColors.add(MyStuff.myCyan);
+        myColors.add(MyStuff.myMagenta);
 
         setLayout(new FlowLayout(FlowLayout.CENTER));
         leftInput = new JTextPane();
@@ -57,7 +57,7 @@ public class Visualizer extends JButton implements KeyListener {
         leftInput.setPreferredSize(presSize);
         int g = 255;
 
-        leftInput.setBackground(MyColors.myLightGrayColor);
+        leftInput.setBackground(MyStuff.myLightGrayColor);
         leftInput.addKeyListener(this);
         leftInput.setFont(multiplicationLineFont);
 
@@ -66,7 +66,7 @@ public class Visualizer extends JButton implements KeyListener {
         rightInput = new JTextPane();
         rightInput.addKeyListener(this);
         rightInput.setPreferredSize(presSize);
-        rightInput.setBackground(MyColors.myLightGrayColor);
+        rightInput.setBackground(MyStuff.myLightGrayColor);
         rightInput.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         rightInput.setFont(multiplicationLineFont);
 
@@ -100,7 +100,7 @@ public class Visualizer extends JButton implements KeyListener {
         StyledDocument doc;
 
         MutableAttributeSet blueStyle = new SimpleAttributeSet();
-        StyleConstants.setForeground(blueStyle, MyColors.myBlueColor);
+        StyleConstants.setForeground(blueStyle, MyStuff.myBlueColor);
 
         MutableAttributeSet greenStyle = new SimpleAttributeSet();
         StyleConstants.setForeground(greenStyle, myColors.get(0));
@@ -180,7 +180,7 @@ public class Visualizer extends JButton implements KeyListener {
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setStroke(new BasicStroke(2.0f));
-        g2d.setColor(MyColors.myBlueColor);
+        g2d.setColor(MyStuff.myBlueColor);
 
         int yPos = (leftInput.getY() + leftInput.getHeight() + 6);
 
@@ -250,12 +250,12 @@ public class Visualizer extends JButton implements KeyListener {
         /// draw left digit
         String draw = str.substring(0, 1);
         int shift = fontMetrics.stringWidth(draw);
-        g2d.setColor(MyColors.myBlueColor);
+        g2d.setColor(MyStuff.myBlueColor);
         g2d.drawString(draw, leftXStart, yTaskPos);
 
         /// draw dot
         draw = str.substring(1, 2);
-        g2d.setColor(MyColors.myGrayColor);
+        g2d.setColor(MyStuff.myGrayColor);
         g2d.drawString(draw, leftXStart + shift, yTaskPos);
         shift += fontMetrics.stringWidth(draw);
 
@@ -276,14 +276,14 @@ public class Visualizer extends JButton implements KeyListener {
             /// up to the + sign in gray
             String myStr = draw.substring(0, plusPos + 1);
 
-            g2d.setColor(MyColors.myGrayColor);
+            g2d.setColor(MyStuff.myGrayColor);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(myStr);
 
             /// the digit after the + sign in red
             myStr = draw.substring(plusPos + 1, plusPos + 3);
 
-            g2d.setColor(MyColors.myRed);
+            g2d.setColor(MyStuff.myRed);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(myStr);
 
@@ -292,13 +292,13 @@ public class Visualizer extends JButton implements KeyListener {
             myStr = helpStr.substring(helpStr.indexOf("=") - 1, helpStr.indexOf("write") + 6);
 
             /// after the red digit in gray again
-            g2d.setColor(MyColors.myGrayColor);
+            g2d.setColor(MyStuff.myGrayColor);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(myStr);
 
         } else {
 
-            g2d.setColor(MyColors.myGrayColor);
+            g2d.setColor(MyStuff.myGrayColor);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(draw);
         }
@@ -330,12 +330,12 @@ public class Visualizer extends JButton implements KeyListener {
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry"), str.indexOf("carry") + 5);
-            g2d.setColor(MyColors.myGrayColor);
+            g2d.setColor(MyStuff.myGrayColor);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry") + 5);
-            g2d.setColor(MyColors.myRed);
+            g2d.setColor(MyStuff.myRed);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
 
             if (animeCarry.hasPositions()) {
@@ -443,15 +443,15 @@ public class Visualizer extends JButton implements KeyListener {
         int stringWidth = fontMetrics.stringWidth(trueSolution);
         int localXPos = rightInput.getX() + rightInput.getWidth() - stringWidth;
 
-        g2d.setColor(MyColors.myLightGray);
+        g2d.setColor(MyStuff.myLightGray);
         g2d.drawString(trueSolution, localXPos, downYpos + fontSize80);
 
-        g2d.setColor(MyColors.myBlueColor);
+        g2d.setColor(MyStuff.myBlueColor);
         int lengthResult = fontMetrics.stringWidth(adder.getResult());
         int lengthToWrite = fontMetrics.stringWidth(resultFromAdder);
 //        g2d.drawString(resultFromAdder, localXPos + lengthResult - lengthToWrite, downYpos + fontSize80);
 
-        g2d.setColor(MyColors.myBlueColor);
+        g2d.setColor(MyStuff.myBlueColor);
         adder.paint(g2d, localXPos, downYpos);
 
 
@@ -494,7 +494,7 @@ public class Visualizer extends JButton implements KeyListener {
     private void drawCarryOver(Graphics2D g2d, int yPos, int shift) {
 
         if (carryOver > 0 && !multiplicationDone) {
-            g2d.setColor(MyColors.myRed);
+            g2d.setColor(MyStuff.myRed);
             g2d.setFont(carryOverFont);
             int carryPos;
             carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos) * shift - 8;
