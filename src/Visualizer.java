@@ -22,8 +22,7 @@ public class Visualizer extends JButton implements KeyListener {
     private final int numDigits = 4;
     private String toBeWritten = "";
     private int carryOver = 0;
-    private final int g = 100;
-    private final Color myGrayColor = new Color(g, g, g);
+
     protected final ArrayList<Color> myColors = new ArrayList();
     private final ArrayList<String> lines = new ArrayList<>();
     private int stepCounter = 0;
@@ -46,12 +45,9 @@ public class Visualizer extends JButton implements KeyListener {
         animeWrite = new AnimationObject(40, this);
         animeCarry = new AnimationObject(40, this);
 
-        Color myGreen = new Color(140, 180, 42);
-        myColors.add(myGreen);
-        Color myOrange = new Color(255, 190, 0);
-        myColors.add(myOrange);
-        Color myCyan = new Color(0, 150, 200);
-        myColors.add(myCyan);
+        myColors.add(MyColors.myGreen);
+        myColors.add(MyColors.myOrange);
+        myColors.add(MyColors.myCyan);
         myColors.add(MyColors.myMagenta);
 
         setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -60,8 +56,8 @@ public class Visualizer extends JButton implements KeyListener {
         Dimension presSize = new Dimension(180, 86);
         leftInput.setPreferredSize(presSize);
         int g = 255;
-        Color myLightGrayColor = new Color(g, g, g);
-        leftInput.setBackground(myLightGrayColor);
+
+        leftInput.setBackground(MyColors.myLightGrayColor);
         leftInput.addKeyListener(this);
         leftInput.setFont(multiplicationLineFont);
 
@@ -70,7 +66,7 @@ public class Visualizer extends JButton implements KeyListener {
         rightInput = new JTextPane();
         rightInput.addKeyListener(this);
         rightInput.setPreferredSize(presSize);
-        rightInput.setBackground(myLightGrayColor);
+        rightInput.setBackground(MyColors.myLightGrayColor);
         rightInput.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         rightInput.setFont(multiplicationLineFont);
 
@@ -259,7 +255,7 @@ public class Visualizer extends JButton implements KeyListener {
 
         /// draw dot
         draw = str.substring(1, 2);
-        g2d.setColor(myGrayColor);
+        g2d.setColor(MyColors.myGrayColor);
         g2d.drawString(draw, leftXStart + shift, yTaskPos);
         shift += fontMetrics.stringWidth(draw);
 
@@ -280,7 +276,7 @@ public class Visualizer extends JButton implements KeyListener {
             /// up to the + sign in gray
             String myStr = draw.substring(0, plusPos + 1);
 
-            g2d.setColor(myGrayColor);
+            g2d.setColor(MyColors.myGrayColor);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(myStr);
 
@@ -296,13 +292,13 @@ public class Visualizer extends JButton implements KeyListener {
             myStr = helpStr.substring(helpStr.indexOf("=") - 1, helpStr.indexOf("write") + 6);
 
             /// after the red digit in gray again
-            g2d.setColor(myGrayColor);
+            g2d.setColor(MyColors.myGrayColor);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(myStr);
 
         } else {
 
-            g2d.setColor(myGrayColor);
+            g2d.setColor(MyColors.myGrayColor);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(draw);
         }
@@ -334,7 +330,7 @@ public class Visualizer extends JButton implements KeyListener {
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry"), str.indexOf("carry") + 5);
-            g2d.setColor(myGrayColor);
+            g2d.setColor(MyColors.myGrayColor);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(draw);
 
