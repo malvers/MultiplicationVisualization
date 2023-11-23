@@ -291,7 +291,7 @@ public class Visualizer extends JButton implements KeyListener {
             /// the digit after the + sign in red
             myStr = draw.substring(plusPos + 1, plusPos + 3);
 
-            g2d.setColor(Color.RED);
+            g2d.setColor(myRed);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(myStr);
 

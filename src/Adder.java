@@ -50,8 +50,7 @@ public class Adder {
             columns.add(theLine.toString());
 
         }
-
-        printColumns(columns);
+//        printColumns(columns);
 
         int carryOver = 0;
         for (int i = columns.get(0).length() - 1; i >= 0; i--) {
@@ -118,7 +117,7 @@ public class Adder {
 
         g2d.drawString(toWrite, xPos + lengthResult - lengthToWrite, yPos + font.getSize());
 
-        printAllCarryOvers();
+//        printAllCarryOvers();
 
         if (numbersToWrite - 1 < 0) {
             return;
@@ -149,9 +148,8 @@ public class Adder {
             carryOver = allCarryOver.get(numbersToWrite);
         }
 
-        System.out.println("ntw: " + (numbersToWrite));
-
         if (carryOver > 0) {
+            g2d.setColor(new Color(180, 0, 0));
             g2d.drawString(carryOver + "", myXPos, yPos - 4);
         }
         g2d.setFont(font);
