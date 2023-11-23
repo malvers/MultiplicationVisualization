@@ -4,7 +4,7 @@ import java.util.Collections;
 
 public class Adder {
 
-    private final Font carryOverFont = new Font("Arial", Font.PLAIN, 24);
+    private final Font carryOverFont = new Font("Arial", Font.PLAIN, 18);
     private ArrayList numbersToAdd = new ArrayList<>();
     private ArrayList<Integer> allCarryOver = new ArrayList<>();
     private String result = "";
@@ -15,7 +15,7 @@ public class Adder {
         return result.toString();
     }
 
-    protected int doAdditionManually(ArrayList<String> lines, boolean verbose) {
+    protected int doAdditionManually(ArrayList<String> lines) {
 
         System.out.println("Adder.doAdditionManually ...");
 
@@ -68,16 +68,14 @@ public class Adder {
                 toWrite = sum + carryOver;
                 carryOver = 0;
             }
+            allCarryOver.add(carryOver);
+
             result += toWrite;
         }
 
         Collections.reverse(allCarryOver);
 
-        if (allCarryOver.size() >= 8) {
-            allCarryOver.remove(0);
-        }
-
-        StringBuilder reversedStringBuilder = new StringBuilder(result.toString()).reverse();
+        StringBuilder reversedStringBuilder = new StringBuilder(result).reverse();
         result = reversedStringBuilder.toString();
 
         if (result.substring(0, 1).contains("0")) {
@@ -86,15 +84,6 @@ public class Adder {
 
         numbersToWrite = result.length();
         return Integer.parseInt(result.toString());
-    }
-
-    private void printColumns(ArrayList<String> columns) {
-        System.out.println("Columns printing");
-        for (int i = 0; i < columns.size(); i++) {
-            columns.get(i);
-            System.out.println(columns.get(i));
-        }
-        System.out.println("Columns done");
     }
 
     protected String oneStep() {
@@ -115,20 +104,16 @@ public class Adder {
             sum += digit;
             numbersToAdd.add(sum);
         }
-        if (sum >= 10) {
-            allCarryOver.add(sum / 10);
-        } else {
-            allCarryOver.add(0);
-        }
         return sum;
     }
 
     protected void paint(Graphics2D g2d, int xPos, int yPos) {
 
         Font font = g2d.getFont();
+        Color color = g2d.getColor();
         FontMetrics fontMetrics = g2d.getFontMetrics(font);
 
-        int lengthResult = fontMetrics.stringWidth(result.toString());
+        int lengthResult = fontMetrics.stringWidth(result);
         int lengthToWrite = fontMetrics.stringWidth(toWrite);
 
         g2d.drawString(toWrite, xPos + lengthResult - lengthToWrite, yPos + font.getSize());
@@ -139,29 +124,57 @@ public class Adder {
             return;
         }
 
-//        if (carryOver < 1) {
-//            return;
-//        }
         g2d.setFont(carryOverFont);
 
-        int myXPos = xPos + lengthResult - 30;
-        for (int i = 0; i < allCarryOver.size(); i++) {
-            int carryOver = allCarryOver.get(i);
-            String carryOverStr = carryOver + "";
-            g2d.drawString(carryOverStr, myXPos, yPos - 4);
-            myXPos -= 44;
+        int myXPos;
+        if(false) {
+            myXPos = xPos + lengthResult - 30;
+            for (int i = allCarryOver.size() - 1; i >= 0; i--) {
+                int carryOver = allCarryOver.get(i);
+                g2d.setColor(Color.LIGHT_GRAY);
+//            if (carryOver > 0) {
+                g2d.drawString(carryOver + "", myXPos, yPos - 4);
+//            }
+                myXPos -= 44;
+            }
         }
 
+        myXPos = xPos + lengthResult - lengthToWrite - 30;
+        g2d.setColor(color);
+        int carryOver;
+
+        if (result.length() > 7) {
+            carryOver = allCarryOver.get(numbersToWrite - 1);
+        } else {
+            carryOver = allCarryOver.get(numbersToWrite);
+        }
+
+        System.out.println("ntw: " + (numbersToWrite));
+
+        if (carryOver > 0) {
+            g2d.drawString(carryOver + "", myXPos, yPos - 4);
+        }
         g2d.setFont(font);
+        g2d.setColor(color);
+    }
+
+    private void printColumns(ArrayList<String> columns) {
+        System.out.println("Columns printing");
+        System.out.println("------------------");
+        for (int i = 0; i < columns.size(); i++) {
+            columns.get(i);
+            System.out.println(columns.get(i));
+        }
+        System.out.println("------------------");
     }
 
     private void printAllCarryOvers() {
-        System.out.println("all carry");
+//        System.out.println("all carry overs");
         for (int i = 0; i < allCarryOver.size(); i++) {
 
             int carryOver = allCarryOver.get(i);
             System.out.print(carryOver);
         }
-        System.out.println("\nall carry done");
+        System.out.println(" carry overs\n------------------");
     }
 }

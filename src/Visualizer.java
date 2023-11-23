@@ -12,8 +12,8 @@ public class Visualizer extends JButton implements KeyListener {
     private AnimationObject animeCarry;
     private final JTextPane leftInput;
     private final JTextPane rightInput;
-    private String numbersLeft = "2309";
-    private String numbersRight = "2510";
+    private String numbersLeft = "2931";
+    private String numbersRight = "7203";
     private Color myLightGray = new Color(180, 180, 180);
     protected Color myRed = new Color(180, 0, 0);
     private final Color myBlueColor = new Color(0, 0, 100);
@@ -56,8 +56,7 @@ public class Visualizer extends JButton implements KeyListener {
         myColors.add(myOrange);
         Color myCyan = new Color(0, 150, 200);
         myColors.add(myCyan);
-        Color myRed = new Color(180, 0, 0);
-        myColors.add(myRed);
+        myColors.add(myMagenta);
 
         setLayout(new FlowLayout(FlowLayout.CENTER));
         leftInput = new JTextPane();
@@ -158,7 +157,7 @@ public class Visualizer extends JButton implements KeyListener {
         int exactSolution = left * right;
         String out = "exact solution: " + left + " * " + right + " = " + exactSolution;
 
-        int ours = adder.doAdditionManually(lines, false);
+        int ours = adder.doAdditionManually(lines);
         out += " our solution: " + ours;
         if (ours != exactSolution) {
             out += " ERROR manual addition!";
@@ -344,7 +343,7 @@ public class Visualizer extends JButton implements KeyListener {
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry") + 5);
-            g2d.setColor(myMagenta);
+            g2d.setColor(myRed);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
 
             if (animeCarry.hasPositions()) {
@@ -502,8 +501,8 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void drawCarryOver(Graphics2D g2d, int yPos, int shift) {
 
-        if (carryOver > 0) {
-            g2d.setColor(myMagenta);
+        if (carryOver > 0 && !multiplicationDone) {
+            g2d.setColor(myRed);
             g2d.setFont(carryOverFont);
             int carryPos;
             carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos) * shift - 8;
@@ -518,7 +517,7 @@ public class Visualizer extends JButton implements KeyListener {
         if (Integer.parseInt(toBeWritten) != checkLineResult) {
             System.out.println("LINE RESULT - ERROR:    " + leftNumber + " * " + digitRight + " = " + checkLineResult + " != " + toBeWritten);
         } else {
-            System.out.println("LINE RESULT - ALL FINE: " + leftNumber + " * " + digitRight + " = " + checkLineResult + " == " + toBeWritten);
+            //System.out.println("LINE RESULT - ALL FINE: " + leftNumber + " * " + digitRight + " = " + checkLineResult + " == " + toBeWritten);
         }
     }
 
@@ -532,7 +531,7 @@ public class Visualizer extends JButton implements KeyListener {
             for (int j = 0; j < numDigits * numDigits; j++) {
                 oneMultiplicationStep();
             }
-            int r1 = adder.doAdditionManually(lines, false);
+            int r1 = adder.doAdditionManually(lines);
             int r2 = Integer.parseInt(calculateTrueSolution());
 
             if (r1 != r2) {
