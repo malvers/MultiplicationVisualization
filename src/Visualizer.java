@@ -12,8 +12,8 @@ public class Visualizer extends JButton implements KeyListener {
     private AnimationObject animeCarry;
     private final JTextPane leftInput;
     private final JTextPane rightInput;
-    private String numbersLeft = "9876";
-    private String numbersRight = "9876";
+    private String numbersLeft = "2309";
+    private String numbersRight = "2510";
     private Color myLightGray = new Color(180, 180, 180);
     protected Color myRed = new Color(180, 0, 0);
     private final Color myBlueColor = new Color(0, 0, 100);
@@ -33,7 +33,6 @@ public class Visualizer extends JButton implements KeyListener {
     private int stepCounter = 0;
     private boolean multiplicationDone = false;
     private final int fontSize80 = 80;
-    private String resultStr = "";
     private final Adder adder;
     private String trueSolution;
     private String resultFromAdder = "";
@@ -421,7 +420,6 @@ public class Visualizer extends JButton implements KeyListener {
         if (++stepCounter >= numDigits * numDigits) {
             lines.add(toBeWritten);
             multiplicationDone = true;
-            resultStr = calculateTrueSolution();
             carryOver = 0;
             trueSolution = calculateTrueSolution();
             return;
@@ -451,7 +449,7 @@ public class Visualizer extends JButton implements KeyListener {
         g2d.setFont(multiplicationLineFont);
         FontMetrics fontMetrics = g2d.getFontMetrics(g2d.getFont());
 
-        int stringWidth = fontMetrics.stringWidth(resultStr);
+        int stringWidth = fontMetrics.stringWidth(trueSolution);
         int localXPos = rightInput.getX() + rightInput.getWidth() - stringWidth;
 
         g2d.setColor(myLightGray);
@@ -580,10 +578,6 @@ public class Visualizer extends JButton implements KeyListener {
             case KeyEvent.VK_RIGHT:
                 if (multiplicationDone) {
                     resultFromAdder = adder.oneStep();
-                    System.out.println("resultFromAdder: " + resultFromAdder);
-                    if (resultFromAdder.contains("done")) {
-                        calculationsFinished = true;
-                    }
                 } else {
                     animeWrite.setHasPositions(false, false);
                     animeCarry.setHasPositions(false, false);

@@ -1,23 +1,27 @@
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Adder {
 
+    private final Font carryOverFont = new Font("Arial", Font.PLAIN, 24);
     private ArrayList numbersToAdd = new ArrayList<>();
+    private ArrayList<Integer> allCarryOver = new ArrayList<>();
+    private String result = "";
+    private int numbersToWrite = 0;
+    private String toWrite = "";
 
     public String getResult() {
         return result.toString();
     }
 
-    private StringBuilder result;
-    private int numbersToWrite = 0;
-    private String toWrite = "";
-
     protected int doAdditionManually(ArrayList<String> lines, boolean verbose) {
 
-        if (true) {
-            System.out.println("Adder.doAdditionManually ...");
-        }
+        System.out.println("Adder.doAdditionManually ...");
+
+        result = "";
+        toWrite = "";
+        allCarryOver.clear();
 
         ArrayList<String> linesLocal = new ArrayList<>();
         int num0right = lines.size() - 1;
@@ -46,28 +50,10 @@ public class Adder {
             linesLocal.add(theLine.toString());
         }
 
-        if (verbose) {
-            System.out.println("Print lines local ...");
-        }
-        for (int i = 0; i < linesLocal.size(); i++) {
-            if (verbose) {
-                System.out.println(linesLocal.get(i));
-            }
-        }
-
-        if (verbose) {
-            System.out.println("Calculate ... ");
-        }
-
-        result = new StringBuilder();
         int carryOver = 0;
         for (int i = linesLocal.get(0).length() - 1; i >= 0; i--) {
 
             int sum = 0;
-            if (verbose) {
-                System.out.print("column: " + i + " -> \t");
-            }
-
             sum = getSumOneColumn(linesLocal, i, sum);
 
             int toWrite;
@@ -79,37 +65,17 @@ public class Adder {
                 toWrite = sum + carryOver;
                 carryOver = 0;
             }
-            if (verbose) {
-                if (sum < 10) {
-                    System.out.print(" sum:  " + sum);
-                } else {
-                    System.out.print(" sum: " + sum);
-                }
-            }
-            if (verbose) {
-                System.out.print(" write " + toWrite + " cary: " + carryOver);
-            }
-            result.append(toWrite);
-            if (verbose) {
-                System.out.println(result);
-            }
+            result += toWrite;
         }
 
-        if (verbose) {
-            System.out.println("");
-        }
+        Collections.reverse(allCarryOver);
 
         StringBuilder reversedStringBuilder = new StringBuilder(result.toString()).reverse();
-        result = new StringBuilder(reversedStringBuilder.toString());
+        result = reversedStringBuilder.toString();
 
-        int intResult = Integer.parseInt(result.toString());
-
-        if (verbose) {
-            System.out.println("int result: " + intResult);
-        }
-        if (verbose) {
-            System.out.println("doAdditionManually done ...");
-        }
+        if( result.substring(0,1).contains("0"))
+            result = result.substring(1);
+        System.out.println("result: " + result);
 
         numbersToWrite = result.length();
         return Integer.parseInt(result.toString());
@@ -127,24 +93,49 @@ public class Adder {
 
     private int getSumOneColumn(ArrayList<String> linesLocal, int columNum, int sum) {
 
-        System.out.println("getSumOneColumn");
+
         for (int i = linesLocal.size() - 1; i >= 0; i--) {
 
             int digit = Character.getNumericValue(linesLocal.get(i).charAt(columNum));
             sum += digit;
             numbersToAdd.add(sum);
-            System.out.println("digit: " + digit + " sum: " + sum);
+//            System.out.println("digit: " + digit + " sum: " + sum);
         }
+        if (sum >= 10) {
+            allCarryOver.add(sum / 10);
+        } else {
+            allCarryOver.add(0);
+        }
+
+        System.out.println("getSumOneColumn: " + allCarryOver.size());
         return sum;
     }
 
     protected void paint(Graphics2D g2d, int xPos, int yPos) {
 
-        FontMetrics fontMetrics = g2d.getFontMetrics(g2d.getFont());
+        Font font = g2d.getFont();
+        FontMetrics fontMetrics = g2d.getFontMetrics(font);
+
+        System.out.println("result: " + result.toString());
+
         int lengthResult = fontMetrics.stringWidth(result.toString());
         int lengthToWrite = fontMetrics.stringWidth(toWrite);
 
-        g2d.drawString(toWrite, xPos + lengthResult - lengthToWrite, yPos + 80);
+        g2d.drawString(toWrite, xPos + lengthResult - lengthToWrite, yPos + font.getSize());
 
+//        System.out.println("numbersToWrite: " + (numbersToWrite - 1));
+
+        if (numbersToWrite - 1 < 0) {
+            return;
+        }
+        int carryOver = allCarryOver.get(numbersToWrite - 1);
+
+//        if (carryOver < 1) {
+//            return;
+//        }
+        g2d.setFont(carryOverFont);
+        String carryOverStr = carryOver + "";
+        g2d.drawString(carryOverStr, xPos + lengthResult - 6 - lengthToWrite, yPos);
+        g2d.setFont(font);
     }
 }
