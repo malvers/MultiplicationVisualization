@@ -3,13 +3,15 @@ import java.util.ArrayList;
 
 public class Adder {
 
+    private ArrayList numbersToAdd = new ArrayList<>();
+
     public String getResult() {
         return result.toString();
     }
 
     private StringBuilder result;
     private int numbersToWrite = 0;
-    private String toWrite;
+    private String toWrite = "";
 
     protected int doAdditionManually(ArrayList<String> lines, boolean verbose) {
 
@@ -115,27 +117,34 @@ public class Adder {
 
     protected String oneStep() {
 
-        if (numbersToWrite < 0) {
+        if (numbersToWrite <= 0) {
             return toWrite;
         }
-        System.out.println("ntw: " + numbersToWrite);
-        toWrite = result.substring(numbersToWrite--);
+        toWrite = result.substring(numbersToWrite - 1);
+        numbersToWrite--;
         return toWrite;
     }
 
-    private static int getSumOneColumn(ArrayList<String> linesLocal, int columNum, int sum) {
+    private int getSumOneColumn(ArrayList<String> linesLocal, int columNum, int sum) {
 
-        for (String s : linesLocal) {
+        System.out.println("getSumOneColumn");
+        for (int i = linesLocal.size() - 1; i >= 0; i--) {
 
-            int digit = Character.getNumericValue(s.charAt(columNum));
+            int digit = Character.getNumericValue(linesLocal.get(i).charAt(columNum));
             sum += digit;
-//            System.out.println("sum: " + sum);
+            numbersToAdd.add(sum);
+            System.out.println("digit: " + digit + " sum: " + sum);
         }
         return sum;
     }
 
-    protected static void paint(Graphics2D g2d, int rightPos, int charWidth) {
+    protected void paint(Graphics2D g2d, int xPos, int yPos) {
 
+        FontMetrics fontMetrics = g2d.getFontMetrics(g2d.getFont());
+        int lengthResult = fontMetrics.stringWidth(result.toString());
+        int lengthToWrite = fontMetrics.stringWidth(toWrite);
+
+        g2d.drawString(toWrite, xPos + lengthResult - lengthToWrite, yPos + 80);
 
     }
 }
