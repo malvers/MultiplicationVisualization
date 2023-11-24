@@ -9,8 +9,15 @@ public class Adder {
     private ArrayList<Integer> allCarryOver = new ArrayList<>();
     private String result = "";
     private int numbersToWrite = 0;
-    private String toWrite = "";
+    private String digitToWrite = "";
     private boolean isDone = false;
+    private int carryOverToWrite = 0;
+
+    public void setMyDebug(boolean myDebug) {
+        this.myDebug = myDebug;
+    }
+
+    private boolean myDebug = false;
 
     public String getResult() {
         return result.toString();
@@ -22,7 +29,7 @@ public class Adder {
 
         isDone = false;
         result = "";
-        toWrite = "";
+        digitToWrite = "";
         allCarryOver.clear();
 
         ArrayList<String> columns = new ArrayList<>();
@@ -52,7 +59,9 @@ public class Adder {
             columns.add(theLine.toString());
 
         }
-//        printColumns(columns);
+        if (myDebug) {
+            printColumns(columns);
+        }
 
         int carryOver = 0;
         for (int i = columns.get(0).length() - 1; i >= 0; i--) {
@@ -90,11 +99,13 @@ public class Adder {
     protected String oneStep() {
 
         if (numbersToWrite <= 0) {
-            return toWrite;
+            return digitToWrite;
         }
-        toWrite = result.substring(numbersToWrite - 1);
+        digitToWrite = result.substring(numbersToWrite - 1);
+        carryOverToWrite = allCarryOver.get(numbersToWrite - 1);
+        System.out.println(numbersToWrite + " carry over: " + carryOverToWrite);
         numbersToWrite--;
-        return toWrite;
+        return digitToWrite;
     }
 
     private int getSumOneColumn(ArrayList<String> linesLocal, int columNum, int sum) {
@@ -115,11 +126,13 @@ public class Adder {
         FontMetrics fontMetrics = g2d.getFontMetrics(font);
 
         int lengthResult = fontMetrics.stringWidth(result);
-        int lengthToWrite = fontMetrics.stringWidth(toWrite);
+        int lengthToWrite = fontMetrics.stringWidth(digitToWrite);
 
-        g2d.drawString(toWrite, xPos + lengthResult - lengthToWrite, yPos + font.getSize());
+        g2d.drawString(digitToWrite, xPos + lengthResult - lengthToWrite, yPos + font.getSize());
 
-//        printAllCarryOvers();
+        if (myDebug) {
+            printAllCarryOvers();
+        }
 
         if (numbersToWrite - 1 < 0) {
             isDone = true;
@@ -129,32 +142,25 @@ public class Adder {
         g2d.setFont(carryOverFont);
 
         int myXPos;
-        if (false) {
-            myXPos = xPos + lengthResult - 30;
+        if (myDebug) {
+            myXPos = xPos + lengthResult - 70;
             for (int i = allCarryOver.size() - 1; i >= 0; i--) {
                 int carryOver = allCarryOver.get(i);
                 g2d.setColor(Color.LIGHT_GRAY);
-//            if (carryOver > 0) {
                 g2d.drawString(carryOver + "", myXPos, yPos - 4);
-//            }
                 myXPos -= 44;
             }
         }
 
-        myXPos = xPos + lengthResult - lengthToWrite - 30;
+        myXPos = xPos + lengthResult - lengthToWrite - 26;
         g2d.setColor(color);
         int carryOver;
 
-        if (result.length() > 7) {
-            carryOver = allCarryOver.get(numbersToWrite - 1);
-        } else {
-            carryOver = allCarryOver.get(numbersToWrite);
+        if (carryOverToWrite > 0) {
+            g2d.setColor(MyStuff.myRed);
+            g2d.drawString(carryOverToWrite + "", myXPos, yPos - 4);
         }
 
-        if (carryOver > 0) {
-            g2d.setColor(MyStuff.myRed);
-            g2d.drawString(carryOver + "", myXPos, yPos - 4);
-        }
         g2d.setFont(font);
         g2d.setColor(color);
     }
@@ -170,9 +176,7 @@ public class Adder {
     }
 
     private void printAllCarryOvers() {
-//        System.out.println("all carry overs");
         for (int i = 0; i < allCarryOver.size(); i++) {
-
             int carryOver = allCarryOver.get(i);
             System.out.print(carryOver);
         }

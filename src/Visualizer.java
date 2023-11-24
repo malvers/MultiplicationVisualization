@@ -5,6 +5,7 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -14,10 +15,11 @@ public class Visualizer extends JButton implements KeyListener {
     private AnimationObject animeCarry;
     private final JTextPane leftInput;
     private final JTextPane rightInput;
-    private String numbersLeft = "2931";
-    private String numbersRight = "7203";
+    private String numbersLeft = "9876";
+    private String numbersRight = "5432";
     protected final Font multiplicationLineFont = new Font("Arial", Font.PLAIN, 80);
     private final Font carryOverFont = new Font("Arial", Font.PLAIN, 24);
+    private final Font debugFont = new Font("Arial", Font.PLAIN, 14);
     protected final Font taskFont = new Font("Arial", Font.PLAIN, 24);
     private int leftPos = 0;
     protected int rightPos = 0;
@@ -80,6 +82,44 @@ public class Visualizer extends JButton implements KeyListener {
         add(rightInput);
 
         init();
+
+        readSettings();
+        adder.setMyDebug(myDebug);
+    }
+
+    private void writeSettings() {
+        try {
+            String uh = System.getProperty("user.home");
+            FileOutputStream f = new FileOutputStream(uh + "/MultiplicationVisualization.bin");
+            ObjectOutputStream os = new ObjectOutputStream(f);
+
+            os.writeBoolean(myDebug);
+
+            os.close();
+            f.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readSettings() {
+
+        try {
+            String uh = System.getProperty("user.home");
+            FileInputStream f = new FileInputStream(uh + "/MultiplicationVisualization.bin");
+            ObjectInputStream os = new ObjectInputStream(f);
+
+            myDebug = os.readBoolean();
+
+            os.close();
+            f.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void init() {
@@ -181,7 +221,6 @@ public class Visualizer extends JButton implements KeyListener {
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setStroke(new BasicStroke(2.0f));
-        g2d.setColor(MyStuff.myBlueColor);
 
         int yPos = (leftInput.getY() + leftInput.getHeight() + 6);
 
@@ -189,6 +228,14 @@ public class Visualizer extends JButton implements KeyListener {
             int xPos = leftInput.getX();
             drawAfterMultiplication(g2d, yPos, xPos);
         }
+
+        if (myDebug) {
+            g2d.setColor(MyStuff.myLightGrayColor);
+            g2d.setFont(debugFont);
+            g2d.drawString("DEBUG", 10, 18);
+        }
+
+        g2d.setColor(MyStuff.myBlueColor);
 
         // draw task line
         g2d.drawLine(leftInput.getX(), yPos, rightInput.getX() + rightInput.getWidth(), yPos);
@@ -470,7 +517,6 @@ public class Visualizer extends JButton implements KeyListener {
             downYpos += 6;
             g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
         }
-
     }
 
     private void drawMultiplicationsLines(Graphics2D g2d, int yPos, int shift) {
@@ -547,6 +593,7 @@ public class Visualizer extends JButton implements KeyListener {
     public void keyPressed(KeyEvent e) {
 
         switch (e.getKeyCode()) {
+
             case KeyEvent.VK_SPACE:
                 randomNumbers();
                 init();
@@ -555,7 +602,12 @@ public class Visualizer extends JButton implements KeyListener {
 
                 break;
             case KeyEvent.VK_W:
+                writeSettings();
+                System.exit(0);
+                break;
+            case KeyEvent.VK_ESCAPE:
                 if (e.isMetaDown()) {
+                    writeSettings();
                     System.exit(0);
                 }
                 break;
@@ -583,14 +635,12 @@ public class Visualizer extends JButton implements KeyListener {
                     animeCarry.start();
                 }
                 break;
-            case KeyEvent.VK_ESCAPE:
-                System.exit(0);
-                break;
             case KeyEvent.VK_I:
                 init();
                 break;
             case KeyEvent.VK_D:
                 myDebug = !myDebug;
+                adder.setMyDebug(myDebug);
                 System.out.println("Debug..." + myDebug);
                 break;
             case KeyEvent.VK_P:
