@@ -17,13 +17,13 @@ class AnimationObject {
     private boolean hasToPosition;
     private Timer timer = new Timer(10, e -> onStep());
 
-    public AnimationObject(int steps, Visualizer vis) {
+    public AnimationObject(Visualizer vis) {
 
         this.vis = vis;
         from = new Point2D.Double();
         runningPoint.setLocation(from);
         to = new Point2D.Double();
-        stepsToRun = steps;
+        stepsToRun = 40;
         hasFromPosition = false;
         hasToPosition = false;
         initTimer();
@@ -32,7 +32,6 @@ class AnimationObject {
     private void initTimer() {
         timer = new Timer(10, e -> {
             onStep();
-//            repaint();
         });
     }
 
@@ -123,6 +122,8 @@ class AnimationObject {
     }
 
     public void start() {
-        timer.start();
+        if (stepsToRun > 0) {
+            timer.start();
+        }
     }
 }

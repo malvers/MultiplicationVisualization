@@ -48,8 +48,8 @@ public class Visualizer extends JButton implements KeyListener {
 
         adder = new Adder();
 
-        animeWrite = new AnimationObject(40, this);
-        animeCarry = new AnimationObject(40, this);
+        animeWrite = new AnimationObject(this);
+        animeCarry = new AnimationObject(this);
 
         myColors.add(MyStuff.myGreen);
         myColors.add(MyStuff.myOrange);
@@ -131,8 +131,8 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void init() {
 
-        animeCarry = new AnimationObject(40, this);
-        animeWrite = new AnimationObject(40, this);
+        animeCarry = new AnimationObject(this);
+        animeWrite = new AnimationObject(this);
         leftPos = 0;
         rightPos = 0;
         toBeWritten = "";
@@ -143,6 +143,37 @@ public class Visualizer extends JButton implements KeyListener {
         resultFromAdder = "";
 
         fillTasks();
+    }
+
+    private void runTesting() {
+
+        for (int i = 0; i <= 1000; i++) {
+            if (i % 100 == 0) {
+                System.out.println("i: " + i);
+            }
+            createRandomTask();
+            for (int j = 0; j < numDigitsLeft * numDigitsRight; j++) {
+                oneMultiplicationStep();
+            }
+            int r1 = adder.doAdditionManually(lines);
+            int r2 = Integer.parseInt(calculateTrueSolution());
+
+            if (r1 != r2) {
+                System.out.println("ERROR ADDITION: " + r1 + " != " + r2);
+            }
+        }
+    }
+
+    private void createRandomTask() {
+
+        init();
+
+        Random random = new Random();
+        digitsLeftStr = "" + random.nextInt(9000) + 1000;
+        digitsRightStr = "" + random.nextInt(9000) + 1000;
+
+        setNumbers(true);
+        setNumbers(false);
     }
 
     private void setNumbers(boolean left) {
@@ -187,7 +218,7 @@ public class Visualizer extends JButton implements KeyListener {
 
             try {
                 for (int i = 0; i < numDigitsRight && i < styles.size(); i++) {
-                    doc.insertString(doc.getLength(), "" + digitsRightStr.charAt(0), styles.get(i));
+                    doc.insertString(doc.getLength(), "" + digitsRightStr.charAt(i), styles.get(i));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -213,17 +244,63 @@ public class Visualizer extends JButton implements KeyListener {
         return "" + exactSolution;
     }
 
-    private void randomNumbers() {
+    private void oneMultiplicationStep() {
 
-        init();
+        if (multiplicationDone) {
+            return;
+        }
 
-        Random random = new Random();
-        digitsLeftStr = "" + random.nextInt(9000) + 1000;
-        digitsRightStr = "" + random.nextInt(9000) + 1000;
+        String leftDigits = leftInput.getText();
+        String rightDigits = rightInput.getText();
 
-        setNumbers(true);
-        setNumbers(false);
+        int digitLeft = leftDigits.charAt(numDigitsLeft - 1 - leftPos) - '0';
+        int digitRight = rightDigits.charAt(rightPos) - '0';
+
+        int singleResult = digitLeft * digitRight;
+
+        int sum = singleResult + carryOver;
+
+        String digitToWrite = "" + (sum % 10);
+
+        if (singleResult + carryOver >= 10) {
+            carryOver = sum / 10;
+        } else {
+            carryOver = 0;
+        }
+
+        toBeWritten = digitToWrite + toBeWritten;
+
+        if (leftPos == numDigitsLeft - 1 && carryOver > 0) {
+            toBeWritten = carryOver + toBeWritten;
+        }
+
+        /// multiplications are done now
+        if (++stepCounter >= numDigitsLeft * numDigitsRight) {
+            lines.add(toBeWritten);
+            multiplicationDone = true;
+            carryOver = 0;
+            trueSolution = calculateTrueSolution();
+            return;
+        }
+
+        leftPos++;
+
+        if (leftPos >= numDigitsLeft) {
+
+            if (rightPos < numDigitsRight) {
+                rightPos++;
+            }
+            leftPos = 0;
+
+            checkLineResult(leftDigits, digitRight);
+
+            lines.add(toBeWritten);
+            toBeWritten = "";
+            carryOver = 0;
+        }
     }
+
+    /// drawing section ////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void paint(Graphics g) {
@@ -264,6 +341,45 @@ public class Visualizer extends JButton implements KeyListener {
         drawCarryOver(g2d, yPos, shift);
 
         drawAnimation(g2d);
+    }
+
+    private void drawMultiplicationsLines(Graphics2D g2d, int yPos, int shift) {
+
+        System.out.println("drawMultiplicationsLines ...");
+        g2d.setFont(multiplicationLineFont);
+        FontMetrics fontMetrics = g2d.getFontMetrics(multiplicationLineFont);
+
+        int lengthShift = fontMetrics.stringWidth(rightInput.getText());
+
+        if (rightPos > 0) {
+
+            int inputPos = rightInput.getX() + rightInput.getWidth();
+
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i);
+                int lineLength = fontMetrics.stringWidth(line);
+                int xPosLocal = inputPos - lineLength - (numDigitsRight - i - 1) * shift + numDigitsRight;
+                g2d.setColor(myColors.get(i));
+                g2d.drawString(line, xPosLocal, yPos + (i + 1) * fontSize80);
+            }
+        }
+        if (multiplicationDone) {
+            return;
+        }
+
+        int toBeWrittenLen = fontMetrics.stringWidth(toBeWritten);
+
+        int xPosLocal = rightInput.getX() + rightInput.getWidth() - toBeWrittenLen - lengthShift + (rightPos + 1) * shift;
+
+        int yPosLocal = yPos + (rightPos + 1) * fontSize80;
+        animeWrite.setToPosition(xPosLocal, yPosLocal);
+        int carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos) * shift - 8;
+        animeCarry.setToPosition(carryPos, yPos - 4);
+
+        g2d.setColor(myColors.get(rightPos));
+//        g2d.setColor(Color.MAGENTA);
+
+        g2d.drawString("" + toBeWritten, xPosLocal, yPosLocal);
     }
 
     private void drawAnimation(Graphics2D g2d) {
@@ -439,62 +555,6 @@ public class Visualizer extends JButton implements KeyListener {
         drawActualTask(g2d, xPosLeft, yPos - 16, width);
     }
 
-    private void oneMultiplicationStep() {
-
-        if (multiplicationDone) {
-            return;
-        }
-
-        String leftDigits = leftInput.getText();
-        String rightDigits = rightInput.getText();
-
-        int digitLeft = leftDigits.charAt(numDigitsLeft - 1 - leftPos) - '0';
-        int digitRight = rightDigits.charAt(rightPos) - '0';
-
-        int singleResult = digitLeft * digitRight;
-
-        int sum = singleResult + carryOver;
-
-        String digitToWrite = "" + (sum % 10);
-
-        if (singleResult + carryOver >= 10) {
-            carryOver = sum / 10;
-        } else {
-            carryOver = 0;
-        }
-
-        toBeWritten = digitToWrite + toBeWritten;
-
-        if (leftPos == numDigitsLeft - 1 && carryOver > 0) {
-            toBeWritten = carryOver + toBeWritten;
-        }
-
-        /// multiplications are done now
-        if (++stepCounter >= numDigitsLeft * numDigitsRight) {
-            lines.add(toBeWritten);
-            multiplicationDone = true;
-            carryOver = 0;
-            trueSolution = calculateTrueSolution();
-            return;
-        }
-
-        leftPos++;
-
-        if (leftPos >= numDigitsLeft) {
-
-            if (rightPos < numDigitsRight) {
-                rightPos++;
-            }
-            leftPos = 0;
-
-            checkLineResult(leftDigits, digitRight);
-
-            lines.add(toBeWritten);
-            toBeWritten = "";
-            carryOver = 0;
-        }
-    }
-
     private void drawAfterMultiplication(Graphics2D g2d, int yPos, int xPos) {
 
         int downYpos = (numDigitsRight * fontSize80) + yPos + 20;
@@ -532,30 +592,6 @@ public class Visualizer extends JButton implements KeyListener {
         }
     }
 
-    private void drawMultiplicationsLines(Graphics2D g2d, int yPos, int shift) {
-
-        g2d.setFont(multiplicationLineFont);
-        FontMetrics fontMetrics = g2d.getFontMetrics(multiplicationLineFont);
-        if (rightPos > 0) {
-
-            for (int i = 0; i < lines.size(); i++) {
-                String line = lines.get(i);
-                int lineLength = fontMetrics.stringWidth(line);
-                g2d.setColor(myColors.get(i));
-                g2d.drawString(line, rightInput.getX() + ((i + 1) * shift) - lineLength, yPos + (i + 1) * fontSize80);
-            }
-        }
-
-        int toBeWrittenLen = fontMetrics.stringWidth(toBeWritten);
-        g2d.setColor(myColors.get(rightPos));
-        int xPosLocal = rightInput.getX() + ((rightPos + 1) * shift) - toBeWrittenLen;
-        int yPosLocal = yPos + (rightPos + 1) * fontSize80;
-        animeWrite.setToPosition(xPosLocal, yPosLocal);
-        int carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos) * shift - 8;
-        animeCarry.setToPosition(carryPos, yPos - 4);
-        g2d.drawString("" + toBeWritten, xPosLocal, yPosLocal);
-    }
-
     private void drawCarryOver(Graphics2D g2d, int yPos, int shift) {
 
         if (carryOver > 0 && !multiplicationDone) {
@@ -578,25 +614,6 @@ public class Visualizer extends JButton implements KeyListener {
         }
     }
 
-    private void runTesting() {
-
-        for (int i = 0; i <= 1000; i++) {
-            if (i % 100 == 0) {
-                System.out.println("i: " + i);
-            }
-            randomNumbers();
-            for (int j = 0; j < numDigitsLeft * numDigitsRight; j++) {
-                oneMultiplicationStep();
-            }
-            int r1 = adder.doAdditionManually(lines);
-            int r2 = Integer.parseInt(calculateTrueSolution());
-
-            if (r1 != r2) {
-                System.out.println("ERROR ADDITION: " + r1 + " != " + r2);
-            }
-        }
-    }
-
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -608,7 +625,7 @@ public class Visualizer extends JButton implements KeyListener {
         switch (e.getKeyCode()) {
 
             case KeyEvent.VK_SPACE:
-                randomNumbers();
+                createRandomTask();
                 init();
                 break;
             case KeyEvent.VK_ENTER:
@@ -626,9 +643,15 @@ public class Visualizer extends JButton implements KeyListener {
                 break;
             case KeyEvent.VK_UP:
                 nextTask();
+                for (int j = 0; j < numDigitsLeft * numDigitsRight; j++) {
+                    oneMultiplicationStep();
+                }
                 break;
             case KeyEvent.VK_DOWN:
                 prevTask();
+                for (int j = 0; j < numDigitsLeft * numDigitsRight; j++) {
+                    oneMultiplicationStep();
+                }
                 break;
             case KeyEvent.VK_LEFT:
             case KeyEvent.VK_RIGHT:
