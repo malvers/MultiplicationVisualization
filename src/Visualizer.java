@@ -33,7 +33,6 @@ public class Visualizer extends JButton implements KeyListener {
     private final Adder adder;
     private String trueSolution;
     private String resultFromAdder = "";
-    private boolean calculationsFinished = false;
     private boolean myDebug = false;
 
     public Visualizer() {
@@ -94,7 +93,6 @@ public class Visualizer extends JButton implements KeyListener {
         lines.clear();
         stepCounter = 0;
         multiplicationDone = false;
-        calculationsFinished = false;
         resultFromAdder = "";
     }
 
@@ -188,7 +186,8 @@ public class Visualizer extends JButton implements KeyListener {
         int yPos = (leftInput.getY() + leftInput.getHeight() + 6);
 
         if (multiplicationDone) {
-            drawAfterMultiplication(g2d, yPos, leftInput.getX());
+            int xPos = leftInput.getX();
+            drawAfterMultiplication(g2d, yPos, xPos);
         }
 
         // draw task line
@@ -447,26 +446,31 @@ public class Visualizer extends JButton implements KeyListener {
         int localXPos = rightInput.getX() + rightInput.getWidth() - stringWidth;
 
         g2d.setColor(MyStuff.myLightGray);
-        if(myDebug) g2d.drawString(trueSolution, localXPos, downYpos + fontSize80);
+        if (myDebug) {
+            g2d.drawString(trueSolution, localXPos, downYpos + fontSize80);
+        }
 
         g2d.setColor(MyStuff.myBlueColor);
         int lengthResult = fontMetrics.stringWidth(adder.getResult());
         int lengthToWrite = fontMetrics.stringWidth(resultFromAdder);
 //        g2d.drawString(resultFromAdder, localXPos + lengthResult - lengthToWrite, downYpos + fontSize80);
 
-        g2d.setColor(MyStuff.myBlueColor);
-        adder.paint(g2d, localXPos, downYpos);
-
         for (int i = 2; i < 5; i++) {
             g2d.drawString("+", xPos, yPos + i * fontSize80);
         }
 
-        downYpos += fontSize80 + 16;
-        g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
-        downYpos += 6;
-        g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
-
         g2d.drawLine(xPos, yPos - fontSize80 - 16, rightInput.getX() + rightInput.getWidth(), yPos - fontSize80 - 16);
+
+        g2d.setColor(MyStuff.myBlueColor);
+        adder.paint(g2d, localXPos, downYpos);
+
+        if (adder.isDone()) {
+            downYpos += fontSize80 + 16;
+            g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
+            downYpos += 6;
+            g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
+        }
+
     }
 
     private void drawMultiplicationsLines(Graphics2D g2d, int yPos, int shift) {

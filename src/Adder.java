@@ -10,6 +10,7 @@ public class Adder {
     private String result = "";
     private int numbersToWrite = 0;
     private String toWrite = "";
+    private boolean isDone = false;
 
     public String getResult() {
         return result.toString();
@@ -19,6 +20,7 @@ public class Adder {
 
         System.out.println("Adder.doAdditionManually ...");
 
+        isDone = false;
         result = "";
         toWrite = "";
         allCarryOver.clear();
@@ -120,13 +122,14 @@ public class Adder {
 //        printAllCarryOvers();
 
         if (numbersToWrite - 1 < 0) {
+            isDone = true;
             return;
         }
 
         g2d.setFont(carryOverFont);
 
         int myXPos;
-        if(false) {
+        if (false) {
             myXPos = xPos + lengthResult - 30;
             for (int i = allCarryOver.size() - 1; i >= 0; i--) {
                 int carryOver = allCarryOver.get(i);
@@ -174,5 +177,9 @@ public class Adder {
             System.out.print(carryOver);
         }
         System.out.println(" carry overs\n------------------");
+    }
+
+    public boolean isDone() {
+        return isDone;
     }
 }
