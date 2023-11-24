@@ -1,3 +1,5 @@
+import com.sun.prism.impl.PrismSettings;
+
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
@@ -32,6 +34,7 @@ public class Visualizer extends JButton implements KeyListener {
     private String trueSolution;
     private String resultFromAdder = "";
     private boolean calculationsFinished = false;
+    private boolean myDebug = false;
 
     public Visualizer() {
 
@@ -57,7 +60,7 @@ public class Visualizer extends JButton implements KeyListener {
         leftInput.setPreferredSize(presSize);
         int g = 255;
 
-        leftInput.setBackground(MyStuff.myLightGrayColor);
+        leftInput.setBackground(Color.WHITE);
         leftInput.addKeyListener(this);
         leftInput.setFont(multiplicationLineFont);
 
@@ -66,7 +69,7 @@ public class Visualizer extends JButton implements KeyListener {
         rightInput = new JTextPane();
         rightInput.addKeyListener(this);
         rightInput.setPreferredSize(presSize);
-        rightInput.setBackground(MyStuff.myLightGrayColor);
+        rightInput.setBackground(Color.WHITE);
         rightInput.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         rightInput.setFont(multiplicationLineFont);
 
@@ -444,7 +447,7 @@ public class Visualizer extends JButton implements KeyListener {
         int localXPos = rightInput.getX() + rightInput.getWidth() - stringWidth;
 
         g2d.setColor(MyStuff.myLightGray);
-        g2d.drawString(trueSolution, localXPos, downYpos + fontSize80);
+        if(myDebug) g2d.drawString(trueSolution, localXPos, downYpos + fontSize80);
 
         g2d.setColor(MyStuff.myBlueColor);
         int lengthResult = fontMetrics.stringWidth(adder.getResult());
@@ -453,7 +456,6 @@ public class Visualizer extends JButton implements KeyListener {
 
         g2d.setColor(MyStuff.myBlueColor);
         adder.paint(g2d, localXPos, downYpos);
-
 
         for (int i = 2; i < 5; i++) {
             g2d.drawString("+", xPos, yPos + i * fontSize80);
@@ -584,7 +586,8 @@ public class Visualizer extends JButton implements KeyListener {
                 init();
                 break;
             case KeyEvent.VK_D:
-                System.out.println("Debug ...");
+                myDebug = !myDebug;
+                System.out.println("Debug..." + myDebug);
                 break;
             case KeyEvent.VK_P:
                 for (int j = 0; j < numDigits * numDigits; j++) {
