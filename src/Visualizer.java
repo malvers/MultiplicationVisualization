@@ -96,6 +96,8 @@ public class Visualizer extends JButton implements KeyListener {
             ObjectOutputStream os = new ObjectOutputStream(f);
 
             os.writeBoolean(myDebug);
+            System.out.println("task: " + actualTask);
+            os.writeInt(actualTask);
 
             os.close();
             f.close();
@@ -114,6 +116,9 @@ public class Visualizer extends JButton implements KeyListener {
             ObjectInputStream os = new ObjectInputStream(f);
 
             myDebug = os.readBoolean();
+            actualTask = os.readInt();
+            System.out.println("task: " + actualTask);
+            setDataForTask();
 
             os.close();
             f.close();
@@ -181,7 +186,7 @@ public class Visualizer extends JButton implements KeyListener {
             doc = rightInput.getStyledDocument();
 
             try {
-                for (int i = 0; i < numDigitsLeft && i < styles.size(); i++) {
+                for (int i = 0; i < numDigitsRight && i < styles.size(); i++) {
                     doc.insertString(doc.getLength(), "" + digitsRightStr.charAt(0), styles.get(i));
                 }
             } catch (Exception e) {
@@ -660,9 +665,17 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void fillTasks() {
 
+        tasks.clear();
         tasks.add(new Point(23, 42));
         tasks.add(new Point(234, 456));
         tasks.add(new Point(2345, 4567));
+        tasks.add(new Point(2345, 42));
+        tasks.add(new Point(42, 4567));
+    }
+
+    private void setTask(int t) {
+        actualTask = t;
+        setDataForTask();
     }
 
     private void prevTask() {
@@ -688,6 +701,8 @@ public class Visualizer extends JButton implements KeyListener {
 
         numberLeft = tasks.get(actualTask).x;
         numberRight = tasks.get(actualTask).y;
+
+        System.out.println("set: " + numberLeft + " - " + numberRight);
 
         digitsLeftStr = "" + numberLeft;
         digitsRightStr = "" + numberRight;
