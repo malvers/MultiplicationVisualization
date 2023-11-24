@@ -1,14 +1,16 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Visualizer extends JButton implements KeyListener {
 
+    private BufferedImage image;
     private AnimationObject animeWrite;
     private AnimationObject animeCarry;
     private final JTextPane leftInput;
@@ -41,9 +43,15 @@ public class Visualizer extends JButton implements KeyListener {
 
     public Visualizer() {
 
+        try {
+            image = ImageIO.read(new File("clouds.jpg"));
+        } catch (IOException e) {
+            System.out.println("clouds not found :-/");
+        }
+
         addKeyListener(this);
-        setOpaque(true);
-        setBackground(Color.WHITE);
+//        setOpaque(true);
+//        setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder());
 
         adder = new Adder();
@@ -51,19 +59,20 @@ public class Visualizer extends JButton implements KeyListener {
         animeWrite = new AnimationObject(this);
         animeCarry = new AnimationObject(this);
 
-        myColors.add(MyStuff.myGreen);
-        myColors.add(MyStuff.myOrange);
-        myColors.add(MyStuff.myCyan);
-        myColors.add(MyStuff.myMagenta);
+        myColors.add(MyColors.myGreen);
+        myColors.add(MyColors.myOrange);
+        myColors.add(MyColors.myCyan);
+        myColors.add(MyColors.myMagenta);
 
         setLayout(new FlowLayout(FlowLayout.CENTER));
         leftInput = new JTextPane();
         leftInput.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-        Dimension presSize = new Dimension(180, 86);
-        leftInput.setPreferredSize(presSize);
+
         int g = 255;
 
-        leftInput.setBackground(Color.WHITE);
+        leftInput.setBackground(MyColors.myTransparentColor);
+        leftInput.setEditable(false);
+        leftInput.setCaret(null);
         leftInput.addKeyListener(this);
         leftInput.setFont(multiplicationLineFont);
 
@@ -71,9 +80,10 @@ public class Visualizer extends JButton implements KeyListener {
 
         rightInput = new JTextPane();
         rightInput.addKeyListener(this);
-        rightInput.setPreferredSize(presSize);
-        rightInput.setBackground(Color.WHITE);
+        rightInput.setBackground(MyColors.myTransparentColor);
         rightInput.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+        rightInput.setEditable(false);
+        rightInput.setCaret(null);
         rightInput.setFont(multiplicationLineFont);
 
         setNumbers(false);
@@ -87,6 +97,8 @@ public class Visualizer extends JButton implements KeyListener {
 
         readSettings();
         adder.setMyDebug(myDebug);
+
+        setBackground(MyColors.myOrange);
     }
 
     private void writeSettings() {
@@ -96,7 +108,6 @@ public class Visualizer extends JButton implements KeyListener {
             ObjectOutputStream os = new ObjectOutputStream(f);
 
             os.writeBoolean(myDebug);
-            System.out.println("task: " + actualTask);
             os.writeInt(actualTask);
 
             os.close();
@@ -168,9 +179,11 @@ public class Visualizer extends JButton implements KeyListener {
 
         init();
 
-        Random random = new Random();
-        digitsLeftStr = "" + random.nextInt(9000) + 1000;
-        digitsRightStr = "" + random.nextInt(9000) + 1000;
+        digitsLeftStr = "" + (int)(Math.random() * 10000 + 1);
+        digitsRightStr = "" + (int)(Math.random() * 10000 + 1);
+
+        numDigitsLeft = digitsLeftStr.length();
+        numDigitsRight = digitsRightStr.length();
 
         setNumbers(true);
         setNumbers(false);
@@ -183,7 +196,7 @@ public class Visualizer extends JButton implements KeyListener {
         ArrayList<MutableAttributeSet> styles = new ArrayList();
 
         MutableAttributeSet blueStyle = new SimpleAttributeSet();
-        StyleConstants.setForeground(blueStyle, MyStuff.myBlueColor);
+        StyleConstants.setForeground(blueStyle, MyColors.myBlue);
 
         MutableAttributeSet greenStyle = new SimpleAttributeSet();
         StyleConstants.setForeground(greenStyle, myColors.get(0));
@@ -201,7 +214,9 @@ public class Visualizer extends JButton implements KeyListener {
         StyleConstants.setForeground(redStyle, myColors.get(3));
         styles.add(redStyle);
 
+        int myWidth = 46;
         if (left) {
+            Dimension presSize = new Dimension(numDigitsLeft * myWidth, 86);
             leftInput.setText("");
             doc = leftInput.getStyledDocument();
             try {
@@ -211,18 +226,29 @@ public class Visualizer extends JButton implements KeyListener {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            leftInput.setPreferredSize(presSize);
+
         } else {
 
+            Dimension presSize = new Dimension(numDigitsRight * myWidth, 86);
             rightInput.setText("");
             doc = rightInput.getStyledDocument();
 
             try {
-                for (int i = 0; i < numDigitsRight && i < styles.size(); i++) {
-                    doc.insertString(doc.getLength(), "" + digitsRightStr.charAt(i), styles.get(i));
+                for (int i = 0; i < numDigitsRight; i++) {
+                    AttributeSet style;
+
+                    if (i >= styles.size()) {
+                        style = blueStyle;
+                    } else {
+                        style = styles.get(i);
+                    }
+                    doc.insertString(doc.getLength(), "" + digitsRightStr.charAt(i), style);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            rightInput.setPreferredSize(presSize);
         }
     }
 
@@ -305,9 +331,21 @@ public class Visualizer extends JButton implements KeyListener {
     @Override
     public void paint(Graphics g) {
 
-        super.paint(g);
-
         Graphics2D g2d = (Graphics2D) g;
+
+        super.paint(g2d);
+
+        if (image != null) {
+            float alpha = 0.10f; // Adjust this value between 0.0f (fully transparent) and 1.0f (fully opaque)
+            AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
+            g2d.setComposite(alphaComposite);
+            g2d.drawImage((Image) image, 0, 0, image.getWidth() / 2, (int) (image.getHeight() / 1.8), Color.BLACK, this);
+
+            alpha = 1.0f; // Adjust this value between 0.0f (fully transparent) and 1.0f (fully opaque)
+            alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
+            g2d.setComposite(alphaComposite);
+        }
+
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setStroke(new BasicStroke(2.0f));
@@ -320,17 +358,18 @@ public class Visualizer extends JButton implements KeyListener {
         }
 
         if (myDebug) {
-            g2d.setColor(MyStuff.myLightGrayColor);
+            g2d.setColor(MyColors.myLightGray);
             g2d.setFont(debugFont);
             g2d.drawString("DEBUG", 10, 18);
         }
 
-        g2d.setColor(MyStuff.myBlueColor);
+        g2d.setColor(MyColors.myBlue);
 
         // draw task line
         g2d.drawLine(leftInput.getX(), yPos, rightInput.getX() + rightInput.getWidth(), yPos);
         // draw multiplication dot
-        g2d.fillOval(getWidth() / 2, (int) (yPos - leftInput.getPreferredSize().height / 1.5), 10, 10);
+        int dist = rightInput.getX() - (leftInput.getX() + leftInput.getWidth());
+        g2d.fillOval(rightInput.getX() - dist/2, (int) (yPos - leftInput.getPreferredSize().height / 1.5), 10, 10);
 
         drawArcAndTask(g2d);
 
@@ -345,7 +384,7 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void drawMultiplicationsLines(Graphics2D g2d, int yPos, int shift) {
 
-        System.out.println("drawMultiplicationsLines ...");
+//        System.out.println("drawMultiplicationsLines ...");
         g2d.setFont(multiplicationLineFont);
         FontMetrics fontMetrics = g2d.getFontMetrics(multiplicationLineFont);
 
@@ -359,7 +398,11 @@ public class Visualizer extends JButton implements KeyListener {
                 String line = lines.get(i);
                 int lineLength = fontMetrics.stringWidth(line);
                 int xPosLocal = inputPos - lineLength - (numDigitsRight - i - 1) * shift + numDigitsRight;
-                g2d.setColor(myColors.get(i));
+                if (i >= myColors.size()) {
+                    g2d.setColor(myColors.get(0));
+                } else {
+                    g2d.setColor(myColors.get(i));
+                }
                 g2d.drawString(line, xPosLocal, yPos + (i + 1) * fontSize80);
             }
         }
@@ -428,12 +471,12 @@ public class Visualizer extends JButton implements KeyListener {
         /// draw left digit
         String draw = str.substring(0, 1);
         int shift = fontMetrics.stringWidth(draw);
-        g2d.setColor(MyStuff.myBlueColor);
+        g2d.setColor(MyColors.myBlue);
         g2d.drawString(draw, leftXStart, yTaskPos);
 
         /// draw dot
         draw = str.substring(1, 2);
-        g2d.setColor(MyStuff.myGrayColor);
+        g2d.setColor(MyColors.myGray);
         g2d.drawString(draw, leftXStart + shift, yTaskPos);
         shift += fontMetrics.stringWidth(draw);
 
@@ -454,14 +497,14 @@ public class Visualizer extends JButton implements KeyListener {
             /// up to the + sign in gray
             String myStr = draw.substring(0, plusPos + 1);
 
-            g2d.setColor(MyStuff.myGrayColor);
+            g2d.setColor(MyColors.myGray);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(myStr);
 
             /// the digit after the + sign in red
             myStr = draw.substring(plusPos + 1, plusPos + 3);
 
-            g2d.setColor(MyStuff.myRed);
+            g2d.setColor(MyColors.myRed);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(myStr);
 
@@ -470,13 +513,13 @@ public class Visualizer extends JButton implements KeyListener {
             myStr = helpStr.substring(helpStr.indexOf("=") - 1, helpStr.indexOf("write") + 6);
 
             /// after the red digit in gray again
-            g2d.setColor(MyStuff.myGrayColor);
+            g2d.setColor(MyColors.myGray);
             g2d.drawString(myStr, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(myStr);
 
         } else {
 
-            g2d.setColor(MyStuff.myGrayColor);
+            g2d.setColor(MyColors.myGray);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(draw);
         }
@@ -508,12 +551,12 @@ public class Visualizer extends JButton implements KeyListener {
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry"), str.indexOf("carry") + 5);
-            g2d.setColor(MyStuff.myGrayColor);
+            g2d.setColor(MyColors.myGray);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
             shift += fontMetrics.stringWidth(draw);
 
             draw = str.substring(str.indexOf("carry") + 5);
-            g2d.setColor(MyStuff.myRed);
+            g2d.setColor(MyColors.myRed);
             g2d.drawString(draw, leftXStart + shift, yTaskPos);
 
             if (animeCarry.hasPositions()) {
@@ -557,20 +600,20 @@ public class Visualizer extends JButton implements KeyListener {
 
     private void drawAfterMultiplication(Graphics2D g2d, int yPos, int xPos) {
 
-        int downYpos = (numDigitsRight * fontSize80) + yPos + 20;
-        g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
+        int downYPos = (numDigitsRight * fontSize80) + yPos + 20;
+        g2d.drawLine(xPos, downYPos, rightInput.getX() + rightInput.getWidth(), downYPos);
         g2d.setFont(multiplicationLineFont);
         FontMetrics fontMetrics = g2d.getFontMetrics(g2d.getFont());
 
         int stringWidth = fontMetrics.stringWidth(trueSolution);
         int localXPos = rightInput.getX() + rightInput.getWidth() - stringWidth;
 
-        g2d.setColor(MyStuff.myLightGray);
+        g2d.setColor(MyColors.myLightGray);
         if (myDebug) {
-            g2d.drawString(trueSolution, localXPos, downYpos + fontSize80);
+            g2d.drawString(trueSolution, localXPos, downYPos + fontSize80);
         }
 
-        g2d.setColor(MyStuff.myBlueColor);
+        g2d.setColor(MyColors.myBlue);
         int lengthResult = fontMetrics.stringWidth(adder.getResult());
         int lengthToWrite = fontMetrics.stringWidth(resultFromAdder);
 //        g2d.drawString(resultFromAdder, localXPos + lengthResult - lengthToWrite, downYpos + fontSize80);
@@ -581,21 +624,21 @@ public class Visualizer extends JButton implements KeyListener {
 
         g2d.drawLine(xPos, yPos - fontSize80 - 16, rightInput.getX() + rightInput.getWidth(), yPos - fontSize80 - 16);
 
-        g2d.setColor(MyStuff.myBlueColor);
-        adder.paint(g2d, localXPos, downYpos);
+        g2d.setColor(MyColors.myBlue);
+        adder.paint(g2d, localXPos, downYPos);
 
         if (adder.isDone()) {
-            downYpos += fontSize80 + 16;
-            g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
-            downYpos += 6;
-            g2d.drawLine(xPos, downYpos, rightInput.getX() + rightInput.getWidth(), downYpos);
+            downYPos += fontSize80 + 16;
+            g2d.drawLine(xPos, downYPos, rightInput.getX() + rightInput.getWidth(), downYPos);
+            downYPos += 6;
+            g2d.drawLine(xPos, downYPos, rightInput.getX() + rightInput.getWidth(), downYPos);
         }
     }
 
     private void drawCarryOver(Graphics2D g2d, int yPos, int shift) {
 
         if (carryOver > 0 && !multiplicationDone) {
-            g2d.setColor(MyStuff.myRed);
+            g2d.setColor(MyColors.myRed);
             g2d.setFont(carryOverFont);
             int carryPos;
             carryPos = leftInput.getX() + leftInput.getWidth() - (leftPos) * shift - 8;
@@ -626,6 +669,7 @@ public class Visualizer extends JButton implements KeyListener {
 
             case KeyEvent.VK_SPACE:
                 createRandomTask();
+                runAllMultiplicationSteps();
                 init();
                 break;
             case KeyEvent.VK_ENTER:
@@ -643,15 +687,11 @@ public class Visualizer extends JButton implements KeyListener {
                 break;
             case KeyEvent.VK_UP:
                 nextTask();
-                for (int j = 0; j < numDigitsLeft * numDigitsRight; j++) {
-                    oneMultiplicationStep();
-                }
+                runAllMultiplicationSteps();
                 break;
             case KeyEvent.VK_DOWN:
                 prevTask();
-                for (int j = 0; j < numDigitsLeft * numDigitsRight; j++) {
-                    oneMultiplicationStep();
-                }
+                runAllMultiplicationSteps();
                 break;
             case KeyEvent.VK_LEFT:
             case KeyEvent.VK_RIGHT:
@@ -674,9 +714,7 @@ public class Visualizer extends JButton implements KeyListener {
                 System.out.println("Debug..." + myDebug);
                 break;
             case KeyEvent.VK_P:
-                for (int j = 0; j < numDigitsLeft * numDigitsRight; j++) {
-                    oneMultiplicationStep();
-                }
+                runAllMultiplicationSteps();
                 break;
 
             case KeyEvent.VK_T:
@@ -684,6 +722,13 @@ public class Visualizer extends JButton implements KeyListener {
                 break;
         }
         repaint();
+        leftInput.repaint();
+    }
+
+    private void runAllMultiplicationSteps() {
+        for (int j = 0; j < numDigitsLeft * numDigitsRight; j++) {
+            oneMultiplicationStep();
+        }
     }
 
     private void fillTasks() {
@@ -691,9 +736,14 @@ public class Visualizer extends JButton implements KeyListener {
         tasks.clear();
         tasks.add(new Point(23, 42));
         tasks.add(new Point(234, 456));
+        tasks.add(new Point(234, 45678));
         tasks.add(new Point(2345, 4567));
         tasks.add(new Point(2345, 42));
         tasks.add(new Point(42, 4567));
+        tasks.add(new Point(1, 111));
+        tasks.add(new Point(111, 2));
+        tasks.add(new Point(1, 1));
+        tasks.add(new Point(9, 9));
     }
 
     private void setTask(int t) {
@@ -724,8 +774,6 @@ public class Visualizer extends JButton implements KeyListener {
 
         numberLeft = tasks.get(actualTask).x;
         numberRight = tasks.get(actualTask).y;
-
-        System.out.println("set: " + numberLeft + " - " + numberRight);
 
         digitsLeftStr = "" + numberLeft;
         digitsRightStr = "" + numberRight;

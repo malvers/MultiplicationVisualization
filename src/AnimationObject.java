@@ -97,7 +97,7 @@ class AnimationObject {
             return;
         }
         int xShift = g2d.getFontMetrics().stringWidth(toWrite);
-        g2d.setColor(MyStuff.myRed);
+        g2d.setColor(MyColors.myRed);
         g2d.setFont(vis.taskFont);
         g2d.drawString(toWrite, (int) runningPoint.getX() - xShift, (int) runningPoint.getY());
     }

@@ -25,7 +25,7 @@ public class Adder {
 
     protected int doAdditionManually(ArrayList<String> lines) {
 
-        System.out.println("Adder.doAdditionManually ...");
+//        System.out.println("Adder.doAdditionManually ...");
 
         isDone = false;
         result = "";
@@ -153,11 +153,9 @@ public class Adder {
         }
 
         myXPos = xPos + lengthResult - lengthToWrite - 26;
-        g2d.setColor(color);
-        int carryOver;
 
         if (carryOverToWrite > 0) {
-            g2d.setColor(MyStuff.myRed);
+            g2d.setColor(MyColors.myRed);
             g2d.drawString(carryOverToWrite + "", myXPos, yPos - 4);
         }
 
