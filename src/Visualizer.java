@@ -59,13 +59,13 @@ public class Visualizer extends JButton implements KeyListener {
         animeWrite = new AnimationObject(this);
         animeCarry = new AnimationObject(this);
 
+        myColors.add(MyColors.myRed);
         myColors.add(MyColors.myGreen);
-        myColors.add(MyColors.myOrange);
+        myColors.add(MyColors.myBlue);
         myColors.add(MyColors.myCyan);
         myColors.add(MyColors.myMagenta);
-        myColors.add(MyColors.myBlue);
+        myColors.add(MyColors.myOrange);
         myColors.add(MyColors.myGray);
-        myColors.add(MyColors.myRed);
 
         setLayout(new FlowLayout(FlowLayout.CENTER));
         leftInput = new JTextPane();
@@ -198,33 +198,34 @@ public class Visualizer extends JButton implements KeyListener {
 
         ArrayList<MutableAttributeSet> styles = new ArrayList();
 
-        MutableAttributeSet blueStyle = new SimpleAttributeSet();
-        StyleConstants.setForeground(blueStyle, MyColors.myBlue);
+        MutableAttributeSet redStyle = new SimpleAttributeSet();
+        StyleConstants.setForeground(redStyle, MyColors.myRed);
+        styles.add(redStyle);
 
         MutableAttributeSet greenStyle = new SimpleAttributeSet();
-        StyleConstants.setForeground(greenStyle, myColors.get(0));
+        StyleConstants.setForeground(greenStyle, MyColors.myGreen);
         styles.add(greenStyle);
 
-        MutableAttributeSet orangeStyle = new SimpleAttributeSet();
-        StyleConstants.setForeground(orangeStyle, myColors.get(1));
-        styles.add(orangeStyle);
-
-        MutableAttributeSet cyanStyle = new SimpleAttributeSet();
-        StyleConstants.setForeground(cyanStyle, myColors.get(2));
-        styles.add(cyanStyle);
-
+        MutableAttributeSet blueStyle = new SimpleAttributeSet();
         StyleConstants.setForeground(blueStyle, MyColors.myBlue);
         styles.add(blueStyle);
+
+        MutableAttributeSet cyanStyle = new SimpleAttributeSet();
+        StyleConstants.setForeground(cyanStyle, MyColors.myCyan);
+        styles.add(cyanStyle);
+
+        MutableAttributeSet magentaStyle = new SimpleAttributeSet();
+        StyleConstants.setForeground(magentaStyle, MyColors.myMagenta);
+        styles.add(magentaStyle);
+
+        MutableAttributeSet orangeStyle = new SimpleAttributeSet();
+        StyleConstants.setForeground(orangeStyle, MyColors.myOrange);
+        styles.add(orangeStyle);
 
         MutableAttributeSet grayStyle = new SimpleAttributeSet();
         StyleConstants.setForeground(grayStyle, MyColors.myGray);
         styles.add(grayStyle);
 
-        MutableAttributeSet redStyle = new SimpleAttributeSet();
-        StyleConstants.setForeground(redStyle, MyColors.myRed);
-        styles.add(redStyle);
-
-        styles.add(redStyle);
         int myWidth = 46;
         if (left) {
             Dimension presSize = new Dimension(numDigitsLeft * myWidth, 86);
@@ -232,6 +233,7 @@ public class Visualizer extends JButton implements KeyListener {
             doc = leftInput.getStyledDocument();
             try {
                 for (int i = 0; i < numDigitsLeft; i++) {
+                    /// left draw all in blue
                     doc.insertString(doc.getLength(), "" + digitsLeftStr.charAt(i), blueStyle);
                 }
             } catch (Exception e) {
@@ -249,11 +251,8 @@ public class Visualizer extends JButton implements KeyListener {
                 for (int i = 0; i < numDigitsRight; i++) {
                     AttributeSet style;
 
-                    if (i >= styles.size()) {
-                        style = blueStyle;
-                    } else {
-                        style = styles.get(i);
-                    }
+                    /// right loop through styles
+                    style = styles.get(i);
                     doc.insertString(doc.getLength(), "" + digitsRightStr.charAt(i), style);
                 }
             } catch (Exception e) {
