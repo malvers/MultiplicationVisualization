@@ -11,4 +11,5 @@ public class MyColors {
     public static Color myGray = new Color(100, 100, 100);
     public static Color myLightGray = new Color(180, 180, 180);
     public static Color myTransparentColor = new Color(0, 0, 0, 0);
+    public static Color mySandLikeColor = new Color(240, 235, 215);
 }

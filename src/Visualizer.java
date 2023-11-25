@@ -39,6 +39,7 @@ public class Visualizer extends JButton implements KeyListener {
     private String trueSolution;
     private String resultFromAdder = "";
     private boolean myDebug = false;
+    private boolean drawHelp = false;
     private int actualTask = 0;
 
     public Visualizer() {
@@ -121,7 +122,6 @@ public class Visualizer extends JButton implements KeyListener {
 
             myDebug = os.readBoolean();
             actualTask = os.readInt();
-            System.out.println("task: " + actualTask);
             setDataForTask();
 
             os.close();
@@ -341,6 +341,11 @@ public class Visualizer extends JButton implements KeyListener {
 
         Graphics2D g2d = (Graphics2D) g;
 
+        if (drawHelp) {
+            drawHelpPage(g2d);
+            return;
+        }
+
         super.paint(g2d);
 
         drawImage(g2d);
@@ -378,6 +383,59 @@ public class Visualizer extends JButton implements KeyListener {
         drawCarryOver(g2d, yPos, shift);
 
         drawAnimation(g2d);
+    }
+
+    private void drawHelpPage(Graphics2D g2d) {
+
+        g2d.setColor(MyColors.mySandLikeColor);
+        g2d.fillRect(0,0, getWidth(), getHeight());
+
+        int fs = 26;
+//        Font font = new Font("SansSerif", Font.PLAIN, fs);
+        Font font = new Font("Arial", Font.PLAIN, fs);
+        g2d.setFont(font);
+        g2d.setColor(Color.DARK_GRAY);
+
+        int xPos = 20;
+        int dy = (int) (fs * 1.5);
+        int yPos = dy;
+        int tab = 350;
+
+        g2d.drawString("Arrow left / right", xPos, yPos);
+        g2d.drawString("Run one step forward", xPos + tab, yPos);
+        yPos += dy;
+
+        g2d.drawString("Arrow up / down", xPos, yPos);
+        g2d.drawString("Choose predefined tasks", xPos + tab, yPos);
+        yPos += dy;
+
+        g2d.drawString("Space bar", xPos, yPos);
+        g2d.drawString("create random task", xPos + tab, yPos);
+        yPos += dy;
+
+        g2d.drawString("Esc key", xPos, yPos);
+        g2d.drawString("Quit the program", xPos + tab, yPos);
+        yPos += dy;
+
+        g2d.drawString("Numbers 0 - 9", xPos, yPos);
+        g2d.drawString("Choose predefined tasks directly", xPos + tab, yPos);
+        yPos += dy;
+
+         g2d.drawString("D", xPos, yPos);
+        g2d.drawString("Toggle debug mode", xPos + tab, yPos);
+        yPos += dy;
+
+        g2d.drawString("H", xPos, yPos);
+        g2d.drawString("Show this help page", xPos + tab, yPos);
+        yPos += dy;
+
+        g2d.drawString("I", xPos, yPos);
+        g2d.drawString("Init actual task", xPos + tab, yPos);
+        yPos += dy;
+
+        g2d.drawString("Cmd W", xPos, yPos);
+        g2d.drawString("Quit the program", xPos + tab, yPos);
+        yPos += dy;
     }
 
     private void drawImage(Graphics2D g2d) {
@@ -748,15 +806,6 @@ public class Visualizer extends JButton implements KeyListener {
                 break;
             case KeyEvent.VK_ENTER:
                 break;
-            case KeyEvent.VK_W:
-                writeSettings();
-                System.exit(0);
-                break;
-            case KeyEvent.VK_ESCAPE:
-                if (e.isMetaDown()) {
-                    writeSettings();
-                    System.exit(0);
-                }
                 break;
             case KeyEvent.VK_UP:
                 nextTask();
@@ -778,20 +827,28 @@ public class Visualizer extends JButton implements KeyListener {
                     animeCarry.start();
                 }
                 break;
-            case KeyEvent.VK_I:
-                init();
-                break;
+
+            /// letter keys ////////////////////////////////////////////////////////////////////////////////////////////
             case KeyEvent.VK_D:
                 myDebug = !myDebug;
                 adder.setMyDebug(myDebug);
-                System.out.println("Debug..." + myDebug);
+                break;
+            case KeyEvent.VK_H:
+                drawHelp = !drawHelp;
+                break;
+            case KeyEvent.VK_I:
+                init();
                 break;
             case KeyEvent.VK_P:
                 runAllMultiplicationSteps();
                 break;
-
             case KeyEvent.VK_T:
                 runTesting();
+                break;
+            case KeyEvent.VK_ESCAPE:
+            case KeyEvent.VK_W:
+                writeSettings();
+                System.exit(0);
                 break;
         }
         repaint();
