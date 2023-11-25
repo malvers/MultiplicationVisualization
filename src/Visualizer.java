@@ -616,7 +616,7 @@ public class Visualizer extends JButton implements KeyListener {
         g2d.setColor(MyColors.myBlue);
         int lengthResult = fontMetrics.stringWidth(adder.getResult());
         int lengthToWrite = fontMetrics.stringWidth(resultFromAdder);
-//        g2d.drawString(resultFromAdder, localXPos + lengthResult - lengthToWrite, downYpos + fontSize80);
+        g2d.drawString(resultFromAdder, localXPos + lengthResult - lengthToWrite, downYPos + fontSize80);
 
         for (int i = 1; i < numDigitsRight; i++) {
             g2d.drawString("+", xPos, yPos + (i + 1) * fontSize80);
@@ -625,7 +625,8 @@ public class Visualizer extends JButton implements KeyListener {
         g2d.drawLine(xPos, yPos - fontSize80 - 16, rightInput.getX() + rightInput.getWidth(), yPos - fontSize80 - 16);
 
         g2d.setColor(MyColors.myBlue);
-        adder.paint(g2d, localXPos, downYPos);
+
+        adder.paint(g2d, localXPos, downYPos, trueSolution);
 
         if (adder.isDone()) {
             downYPos += fontSize80 + 16;
@@ -734,6 +735,7 @@ public class Visualizer extends JButton implements KeyListener {
     private void fillTasks() {
 
         tasks.clear();
+        tasks.add(new Point(9846, 2052));
         tasks.add(new Point(23, 42));
         tasks.add(new Point(234, 456));
         tasks.add(new Point(234, 45678));

@@ -12,6 +12,7 @@ public class Adder {
     private String digitToWrite = "";
     private boolean isDone = false;
     private int carryOverToWrite = 0;
+    private String trueSolution;
 
     public void setMyDebug(boolean myDebug) {
         this.myDebug = myDebug;
@@ -49,16 +50,28 @@ public class Adder {
                 tmp.insert(0, "0");
             }
 
-            /// hack
-            while (tmp.length() < 2 * lines.size()) {
-                tmp.insert(0, "0");
-            }
-
             theLine = new StringBuilder(tmp.toString());
 
             columns.add(theLine.toString());
 
         }
+
+        /// TODO: big hack ///////////////////////
+        int max = 0;
+        for (int j = 0; j < columns.size(); j++) {
+            int len = columns.get(j).length();
+            if( len > max)
+                max = len;
+        }
+        for (int j = 0; j < columns.size(); j++) {
+            while (columns.get(j).length() < max) {
+                String line = columns.get(j);
+                line  = "0" + line;
+                columns.set(j, line);
+            }
+        }
+        /// hack end /////////////////////////////
+
         if (myDebug) {
             printColumns(columns);
         }
@@ -119,16 +132,22 @@ public class Adder {
         return sum;
     }
 
-    protected void paint(Graphics2D g2d, int xPos, int yPos) {
+    protected void paint(Graphics2D g2d, int xPos, int yPos, String ts) {
 
+        trueSolution = ts;
         Font font = g2d.getFont();
         Color color = g2d.getColor();
         FontMetrics fontMetrics = g2d.getFontMetrics(font);
 
-        int lengthResult = fontMetrics.stringWidth(result);
+        System.out.println("trueSolution: " + trueSolution + " digit to write " + digitToWrite);
+
+        int lengthResult = fontMetrics.stringWidth(trueSolution);
         int lengthToWrite = fontMetrics.stringWidth(digitToWrite);
 
-        g2d.drawString(digitToWrite, xPos + lengthResult - lengthToWrite, yPos + font.getSize());
+        int localX = xPos + lengthResult - lengthToWrite;
+        g2d.drawString(digitToWrite, localX, yPos + font.getSize());
+
+        g2d.drawLine(localX, 0, localX, 1000);
 
         if (myDebug) {
             printAllCarryOvers();
