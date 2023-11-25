@@ -31,8 +31,10 @@ public class Adder {
         isDone = false;
         result = "";
         digitToWrite = "";
+        carryOverToWrite = 0;
         allCarryOver.clear();
 
+        /// create matrix for calculations /////////////////////////////////////////////////////////////////////////////
         ArrayList<String> columns = new ArrayList<>();
         int num0right = lines.size() - 1;
 
@@ -76,6 +78,7 @@ public class Adder {
             printColumns(columns);
         }
 
+        /// fill carry overs ///////////////////////////////////////////////////////////////////////////////////////////
         int carryOver = 0;
         for (int i = columns.get(0).length() - 1; i >= 0; i--) {
 

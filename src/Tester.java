@@ -3,8 +3,11 @@ public class Tester {
 
     public static void main(String[] args) {
 
-        int carry = 52 / 10;
+        long maxLongValue = Long.MAX_VALUE;
+        System.out.println("Maximum long value: " + maxLongValue);
 
-        System.out.println("carry: " + carry);
+        Long test = new Long(999999l * 999999l);
+
+        System.out.println(test);
     }
 }

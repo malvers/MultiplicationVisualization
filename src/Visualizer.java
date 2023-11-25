@@ -15,10 +15,10 @@ public class Visualizer extends JButton implements KeyListener {
     private AnimationObject animeCarry;
     private final JTextPane leftInput;
     private final JTextPane rightInput;
-    private int numberLeft = 23;
+    private long numberLeft = 23l;
     private String digitsLeftStr = "" + numberLeft;
     private int numDigitsLeft = digitsLeftStr.length();
-    private int numberRight = 42;
+    private long numberRight = 42l;
     private String digitsRightStr = "" + numberRight;
     private int numDigitsRight = digitsRightStr.length();
     protected final Font multiplicationLineFont = new Font("Arial", Font.PLAIN, 80);
@@ -265,10 +265,10 @@ public class Visualizer extends JButton implements KeyListener {
 
     private String calculateTrueSolution() {
 
-        int left = Integer.parseInt(leftInput.getText());
-        int right = Integer.parseInt(rightInput.getText());
+        long left = Long.parseLong(leftInput.getText());
+        long right = Long.parseLong(rightInput.getText());
 
-        int exactSolution = left * right;
+        long exactSolution = left * right;
         String out = "exact solution: " + left + " * " + right + " = " + exactSolution;
 
         long ours = adder.doAdditionManually(lines);
