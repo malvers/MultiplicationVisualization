@@ -806,7 +806,6 @@ public class Visualizer extends JButton implements KeyListener {
                 break;
             case KeyEvent.VK_ENTER:
                 break;
-                break;
             case KeyEvent.VK_UP:
                 nextTask();
                 runAllMultiplicationSteps();
