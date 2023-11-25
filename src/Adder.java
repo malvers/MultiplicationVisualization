@@ -5,7 +5,7 @@ import java.util.Collections;
 public class Adder {
 
     private final Font carryOverFont = new Font("Arial", Font.PLAIN, 18);
-    private ArrayList numbersToAdd = new ArrayList<>();
+    private final ArrayList numbersToAdd = new ArrayList<>();
     private ArrayList<Integer> allCarryOver = new ArrayList<>();
     private String result = "";
     private int numbersToWrite = 0;
@@ -21,10 +21,10 @@ public class Adder {
     private boolean myDebug = false;
 
     public String getResult() {
-        return result.toString();
+        return result;
     }
 
-    protected int doAdditionManually(ArrayList<String> lines) {
+    protected long doAdditionManually(ArrayList<String> lines) {
 
 //        System.out.println("Adder.doAdditionManually ...");
 
@@ -58,9 +58,9 @@ public class Adder {
 
         /// TODO: big hack ///////////////////////
         int max = 0;
-        for (int j = 0; j < columns.size(); j++) {
-            int len = columns.get(j).length();
-            if( len > max)
+        for (String column : columns) {
+            int len = column.length();
+            if (len > max)
                 max = len;
         }
         for (int j = 0; j < columns.size(); j++) {
@@ -106,7 +106,7 @@ public class Adder {
         }
 
         numbersToWrite = result.length();
-        return Integer.parseInt(result.toString());
+        return Long.parseLong(result.toString());
     }
 
     protected String oneStep() {
@@ -139,15 +139,11 @@ public class Adder {
         Color color = g2d.getColor();
         FontMetrics fontMetrics = g2d.getFontMetrics(font);
 
-        System.out.println("trueSolution: " + trueSolution + " digit to write " + digitToWrite);
-
         int lengthResult = fontMetrics.stringWidth(trueSolution);
         int lengthToWrite = fontMetrics.stringWidth(digitToWrite);
 
         int localX = xPos + lengthResult - lengthToWrite;
         g2d.drawString(digitToWrite, localX, yPos + font.getSize());
-
-        g2d.drawLine(localX, 0, localX, 1000);
 
         if (myDebug) {
             printAllCarryOvers();
@@ -185,16 +181,14 @@ public class Adder {
     private void printColumns(ArrayList<String> columns) {
         System.out.println("Columns printing");
         System.out.println("------------------");
-        for (int i = 0; i < columns.size(); i++) {
-            columns.get(i);
-            System.out.println(columns.get(i));
+        for (String column : columns) {
+            System.out.println(column);
         }
         System.out.println("------------------");
     }
 
     private void printAllCarryOvers() {
-        for (int i = 0; i < allCarryOver.size(); i++) {
-            int carryOver = allCarryOver.get(i);
+        for (int carryOver : allCarryOver) {
             System.out.print(carryOver);
         }
         System.out.println(" carry overs\n------------------");
